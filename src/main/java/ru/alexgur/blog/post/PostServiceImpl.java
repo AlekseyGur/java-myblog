@@ -32,7 +32,7 @@ public class PostServiceImpl implements PostService {
     public PostDto add(String title, String text, String tags, MultipartFile image) {
         Post post = new Post();
         post.setTitle(title);
-        post.setTextDetail(text);
+        post.setText(text);
         Post postSaved = postStorage.add(post).orElse(null);
 
         if (!image.isEmpty()) {
@@ -88,7 +88,7 @@ public class PostServiceImpl implements PostService {
         }
 
         if (text != null) {
-            postSaved.setTextDetail(text);
+            postSaved.setText(text);
         }
 
         if (!image.isEmpty()) {

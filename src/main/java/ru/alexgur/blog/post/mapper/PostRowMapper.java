@@ -18,8 +18,7 @@ public class PostRowMapper implements RowMapper<Post> {
         Post post = new Post();
         post.setId(rs.getLong("id"));
         post.setTitle(rs.getString("title"));
-        post.setTextPreview(rs.getString("text_preview"));
-        post.setTextDetail(rs.getString("text_detail"));
+        post.setText(rs.getString("text"));
         post.setLikes(rs.getInt("likes"));
         return post;
     }

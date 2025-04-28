@@ -14,12 +14,16 @@ import ru.alexgur.blog.tag.dto.TagDto;
 public class PostDto {
     private Long id;
     private String title;
-    private String textPreview;
-    private String textDetail;
+    private String text;
 
     private String url;
     private String imagePath;
     private Integer likes;
     private List<CommentDto> comments;
     private List<TagDto> tags;
+
+    public String getTagsAsText() {
+        return String.join(", ",
+                tags.stream().map(x -> x.getName()).toList());
+    }
 }

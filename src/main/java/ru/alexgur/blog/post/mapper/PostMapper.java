@@ -12,8 +12,7 @@ public class PostMapper {
         PostDto postDto = new PostDto();
         postDto.setId(post.getId());
         postDto.setTitle(post.getTitle());
-        postDto.setTextPreview(post.getTextPreview());
-        postDto.setTextDetail(post.getTextDetail());
+        postDto.setText(post.getText());
         postDto.setLikes(post.getLikes());
         return postDto;
     }
@@ -22,8 +21,7 @@ public class PostMapper {
         Post post = new Post();
         post.setId(postDto.getId());
         post.setTitle(postDto.getTitle());
-        post.setTextPreview(postDto.getTextPreview());
-        post.setTextDetail(postDto.getTextDetail());
+        post.setText(postDto.getText());
         post.setLikes(postDto.getLikes());
         return post;
     }

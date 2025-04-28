@@ -12,7 +12,7 @@ public class PostValidate {
             throw new ValidationException("Укажите название");
         }
 
-        if (post.getTextDetail() == null || post.getTextDetail().isBlank()) {
+        if (post.getText() == null || post.getText().isBlank()) {
             throw new ValidationException("Напишите содержание");
         }
     }
@@ -22,7 +22,7 @@ public class PostValidate {
             throw new ValidationException("Укажите название");
         }
 
-        if (post.getTextDetail() == null || post.getTextDetail().isBlank()) {
+        if (post.getText() == null || post.getText().isBlank()) {
             throw new ValidationException("Напишите содержание");
         }
     }

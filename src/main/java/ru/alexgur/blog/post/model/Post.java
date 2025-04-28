@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 public class Post {
     private Long id;
     private String title;
-    private String textPreview;
-    private String textDetail;
+    private String text;
     private Integer likes;
     private List<Long> tags;
 }

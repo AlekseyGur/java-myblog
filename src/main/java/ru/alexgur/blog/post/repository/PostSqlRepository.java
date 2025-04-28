@@ -15,11 +15,11 @@ import ru.alexgur.blog.system.repository.BaseRepository;
 @Repository
 public class PostSqlRepository extends BaseRepository<Post> implements PostStorage {
 
-    private static final String POST_ADD = "INSERT INTO posts(title, text_preview, text_detail) VALUES (?, ?, ?);";
+    private static final String POST_ADD = "INSERT INTO posts(title, text) VALUES (?, ?);";
     private static final String POST_CHECK_ID_EXIST = "SELECT id FROM posts WHERE id = ?;";
     private static final String POST_GET_BY_ID = "SELECT * FROM posts WHERE id = ?;";
     private static final String POST_GET_ALL = "SELECT * FROM posts LIMIT ? OFFSET ?;";
-    private static final String POST_UPDATE = "UPDATE posts SET title = ?, text_preview = ?, text_detail = ? WHERE id = ? LIMIT 1;";
+    private static final String POST_UPDATE = "UPDATE posts SET title = ?, text = ? WHERE id = ? LIMIT 1;";
     private static final String POST_DELETE = "DELETE FROM posts WHERE id = ? LIMIT 1;";
 
     private static final String POST_LIKE = "UPDATE posts SET likes = likes - 1 WHERE id = ? LIMIT 1;";
@@ -29,8 +29,7 @@ public class PostSqlRepository extends BaseRepository<Post> implements PostStora
             SELECT *
             FROM posts
             WHERE title LIKE ?
-            OR text_preview LIKE ?
-            OR text_detail LIKE ?
+            OR text LIKE ?
             LIMIT ? OFFSET ?;""";
 
     @Autowired
@@ -42,8 +41,7 @@ public class PostSqlRepository extends BaseRepository<Post> implements PostStora
     public Optional<Post> add(Post post) {
         long id = insert(POST_ADD,
                 post.getTitle(),
-                post.getTextPreview(),
-                post.getTextDetail());
+                post.getText());
 
         return getPostImpl(id);
     }
@@ -61,16 +59,15 @@ public class PostSqlRepository extends BaseRepository<Post> implements PostStora
     @Override
     public List<Post> find(String search, Integer offset, Integer limit) {
         String q = "%" + search + "%";
-        return findMany(POST_FIND, q, q, q, limit, offset);
+        return findMany(POST_FIND, q, q, limit, offset);
     }
 
     @Override
     public Optional<Post> update(Post post) {
         update(POST_UPDATE,
                 post.getTitle(),
-                post.getTextPreview(),
-                post.getTextDetail(),
-                post.getId());
+                post.getText(),
+                        post.getId());
 
         return getPostImpl(post.getId());
     }

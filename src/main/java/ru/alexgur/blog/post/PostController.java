@@ -43,7 +43,20 @@ public class PostController {
 
     @GetMapping("/add")
     public String addForm() {
-        return "post";
+        return "add-post";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        PostDto post = postService.get(id);
+
+        if (post == null) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("post", post);
+
+        return "add-post";
     }
 
     @PostMapping
@@ -64,6 +77,18 @@ public class PostController {
             @PathVariable Long id,
             @RequestParam(name = "like") boolean isLike) {
         postService.like(id, isLike);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.OK)
+    public String edit(
+            @RequestParam("title") String title,
+            @RequestParam("text") String text,
+            @RequestParam("image") MultipartFile image,
+            @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
+        PostDto savedPost = postService.add(title, text, tags, image);
+
+        return "redirect:" + savedPost.getUrl();
     }
 
     // @ ----------------------------------------------------------------------
