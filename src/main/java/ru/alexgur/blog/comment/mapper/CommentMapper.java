@@ -11,23 +11,14 @@ public class CommentMapper {
     public static CommentDto commentToDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
-        commentDto.setName(comment.getName());
-        commentDto.setDescription(comment.getDescription());
-        commentDto.setAvailable(comment.getAvailable());
-        commentDto.setOwner(comment.getOwner());
-        if (comment.getRequest() != null) {
-            commentDto.setRequest(comment.getRequest());
-        }
+        commentDto.setText(comment.getText());
         return commentDto;
     }
 
     public static Comment dtoToComment(CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setId(commentDto.getId());
-        comment.setName(commentDto.getName());
-        comment.setDescription(commentDto.getDescription());
-        comment.setAvailable(commentDto.getAvailable());
-        comment.setOwner(commentDto.getOwner());
+        comment.setText(commentDto.getText());
         return comment;
     }
 

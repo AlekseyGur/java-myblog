@@ -10,13 +10,11 @@ public interface CommentStorage {
 
     Optional<Comment> get(Long id);
 
-    List<Comment> getByUserId(Long userId);
+    List<Comment> getByPostId(Long userId);
 
     Optional<Comment> update(Comment comment);
 
     void delete(Long id);
 
     boolean checkIdExist(Long id);
-
-    List<Comment> find(String query);
 }

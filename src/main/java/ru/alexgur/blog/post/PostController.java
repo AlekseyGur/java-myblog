@@ -3,6 +3,7 @@ package ru.alexgur.blog.post;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,11 +35,14 @@ public class PostController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<PostDto> getAll(
+    public String getAll(
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "0") Integer pageNumber) {
-        return postService.getAll(search, pageSize, pageNumber);
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            Model model) {
+        List<PostDto> posts = postService.getAll(search, pageSize, pageNumber);
+        model.addAttribute("posts", posts);
+        return "posts";
     }
 
     @GetMapping("/add")
@@ -51,22 +55,33 @@ public class PostController {
         PostDto post = postService.get(id);
 
         if (post == null) {
-            return "redirect:/";
+            return "redirect:/add";
         }
 
         model.addAttribute("post", post);
-
         return "add-post";
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public String add(
+    public String addPost(
             @RequestParam("title") String title,
             @RequestParam("text") String text,
             @RequestParam("image") MultipartFile image,
             @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
         PostDto savedPost = postService.add(title, text, tags, image);
+
+        return "redirect:" + savedPost.getUrl();
+    }
+
+    @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public String editPost(@PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam("text") String text,
+            @RequestParam("image") MultipartFile image,
+            @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
+        PostDto savedPost = postService.patch(id, title, text, tags, image);
 
         return "redirect:" + savedPost.getUrl();
     }
@@ -79,42 +94,10 @@ public class PostController {
         postService.like(id, isLike);
     }
 
-    @PostMapping
+    @PostMapping(value = "/{postId}/delete", params = "_method=delete")
     @ResponseStatus(HttpStatus.OK)
-    public String edit(
-            @RequestParam("title") String title,
-            @RequestParam("text") String text,
-            @RequestParam("image") MultipartFile image,
-            @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
-        PostDto savedPost = postService.add(title, text, tags, image);
-
-        return "redirect:" + savedPost.getUrl();
+    public String delete(@PathVariable Long postId) {
+        postService.delete(postId);
+        return "redirect:/posts";
     }
-
-    // @ ----------------------------------------------------------------------
-
-    // // @DeleteMapping("/{id}")
-    // @PostMapping(value = "/{id}", params = "_method=delete")
-    // @ResponseStatus(HttpStatus.OK)
-    // public String delete(@PathVariable Long id) {
-    // postService.delete(id);
-    // return "redirect:/posts";
-    // }
-
-    // @PatchMapping("/{postId}")
-    // @ResponseStatus(HttpStatus.OK)
-    // public PostDto patch(
-    // @PathVariable Long postId,
-    // @RequestBody PostDto post,
-    // @RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId) {
-    // post.setId(postId);
-    // post.setOwner(userId);
-    // return postService.patch(post);
-    // }
-
-    // @GetMapping("/search")
-    // @ResponseStatus(HttpStatus.OK)
-    // public List<PostDto> search(@RequestParam String text) {
-    // return postService.find(text);
-    // }
 }

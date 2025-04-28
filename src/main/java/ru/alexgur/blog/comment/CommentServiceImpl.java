@@ -5,48 +5,41 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import ru.alexgur.blog.system.exception.AccessDeniedException;
 import ru.alexgur.blog.system.exception.NotFoundException;
 import ru.alexgur.blog.comment.dto.CommentDto;
 import ru.alexgur.blog.comment.interfaces.CommentService;
 import ru.alexgur.blog.comment.interfaces.CommentStorage;
 import ru.alexgur.blog.comment.mapper.CommentMapper;
 import ru.alexgur.blog.comment.model.Comment;
-import ru.alexgur.blog.post.interfaces.PostStorage;
+import ru.alexgur.blog.post.interfaces.PostService;
 
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
     private final CommentStorage commentStorage;
-    private final PostStorage postService;
+    private final PostService postService;
 
     @Override
-    public CommentDto add(CommentDto commentDto) {
-        Comment comment = CommentMapper.dtoToComment(commentDto);
-        if (!postService.checkIdExist(comment.getOwner())) {
-            throw new NotFoundException("Пользователь с таким id не найден");
+    public CommentDto add(Long postId, String text) {
+        if (!postService.checkIdExist(postId)) {
+            throw new NotFoundException("Публикация с таким id не найдена");
         }
+
+        Comment comment = new Comment();
+        comment.setPostId(postId);
+        comment.setText(text);
+
         return CommentMapper.commentToDto(commentStorage.add(comment).orElse(null));
     }
 
     @Override
-    public CommentDto get(Long id) {
-        return commentStorage.get(id)
-                .map(CommentMapper::commentToDto)
-                .orElseThrow(() -> new NotFoundException("Вещь с таким id не найдена"));
+    public CommentDto get(Long postId) {
+        return CommentMapper.commentToDto(commentStorage.get(postId).orElse(null));
     }
 
     @Override
-    public List<CommentDto> find(String query) {
-        if (query.isBlank()) {
-            return List.of();
-        }
-        return CommentMapper.commentToDto(commentStorage.find(query));
-    }
-
-    @Override
-    public List<CommentDto> getByUserId(Long userId) {
-        return CommentMapper.commentToDto(commentStorage.getByUserId(userId));
+    public List<CommentDto> getByPostId(Long postId) {
+        return CommentMapper.commentToDto(commentStorage.getByPostId(postId));
     }
 
     @Override
@@ -58,20 +51,8 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto patch(CommentDto commentDto) {
         Comment commentSaved = checkAccess(commentDto);
 
-        if (commentDto.getName() != null) {
-            commentSaved.setName(commentDto.getName());
-        }
-
-        if (commentDto.getDescription() != null) {
-            commentSaved.setDescription(commentDto.getDescription());
-        }
-
-        if (commentDto.getRequest() != null) {
-            commentSaved.setRequest(commentDto.getRequest());
-        }
-
-        if (commentDto.getAvailable() != null) {
-            commentSaved.setAvailable(commentDto.getAvailable());
+        if (commentDto.getText() != null) {
+            commentSaved.setText(commentDto.getText());
         }
 
         return CommentMapper.commentToDto(commentStorage.update(commentSaved).orElse(null));
@@ -84,21 +65,16 @@ public class CommentServiceImpl implements CommentService {
 
     private Comment checkAccess(CommentDto comment) {
         Long commentId = comment.getId();
-        Long userId = comment.getOwner();
 
         if (comment == null || !checkIdExist(commentId)) {
-            throw new NotFoundException("Вещь с таким id не найдена");
+            throw new NotFoundException("Комментарий с таким id не найден");
         }
 
-        if (!postService.checkIdExist(userId)) {
-            throw new NotFoundException("Пользователь с таким id не найден");
+        if (!postService.checkIdExist(comment.getPostId())) {
+            throw new NotFoundException("Публикация с таким id не найдена");
         }
 
         Comment commentSaved = commentStorage.get(commentId).get();
-
-        if (!commentSaved.getOwner().equals(userId)) {
-            throw new AccessDeniedException("Только владелец может редактировать вещь");
-        }
 
         return commentSaved;
     }

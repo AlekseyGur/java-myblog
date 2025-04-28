@@ -5,13 +5,11 @@ import java.util.List;
 import ru.alexgur.blog.comment.dto.CommentDto;
 
 public interface CommentService {
-    CommentDto add(CommentDto comment);
+    CommentDto add(Long postId, String text);
 
     CommentDto get(Long id);
 
-    List<CommentDto> find(String query);
-
-    List<CommentDto> getByUserId(Long userId);
+    List<CommentDto> getByPostId(Long postId);
 
     void delete(Long id);
 

@@ -1,73 +1,42 @@
 package ru.alexgur.blog.comment;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.comment.dto.CommentDto;
 import ru.alexgur.blog.comment.interfaces.CommentService;
-import ru.alexgur.blog.comment.utils.CommentValidate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/comments")
+@RequestMapping("/posts")
 public class CommentController {
     private final CommentService commentService;
 
-    @GetMapping
+    @PostMapping("/{postId}/comments")
     @ResponseStatus(HttpStatus.OK)
-    public List<CommentDto> getByUserId(@RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId) {
-        return commentService.getByUserId(userId);
+    public String addComment(@PathVariable Long postId, @RequestParam("text") String text) {
+        CommentDto savedComment = commentService.add(postId, text);
+        return "redirect:" + savedComment.getUrl();
     }
 
-    @PostMapping
+    @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CommentDto add(
-            @RequestBody CommentDto comment,
-            @RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId) {
-        comment.setOwner(userId);
-        CommentValidate.comment(comment);
-        return commentService.add(comment);
+    public String editComment(@PathVariable Long id, @RequestBody CommentDto commentDto) {
+        CommentDto savedComment = commentService.patch(commentDto);
+
+        return "redirect:" + savedComment.getUrl();
     }
 
-    @GetMapping("/{id}")
+    @PostMapping(value = "/{postId}/comments/{commentId}/delete", params = "_method=delete")
     @ResponseStatus(HttpStatus.OK)
-    public CommentDto get(@PathVariable Long id) {
-        return commentService.get(id);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable Long id) {
-        commentService.delete(id);
-    }
-
-    @PatchMapping("/{commentId}")
-    @ResponseStatus(HttpStatus.OK)
-    public CommentDto patch(
-            @PathVariable Long commentId,
-            @RequestBody CommentDto comment,
-            @RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId) {
-        comment.setId(commentId);
-        comment.setOwner(userId);
-        return commentService.patch(comment);
-    }
-
-    @GetMapping("/search")
-    @ResponseStatus(HttpStatus.OK)
-    public List<CommentDto> search(@RequestParam String text) {
-        return commentService.find(text);
+    public String deleteComment(@PathVariable Long postId, @PathVariable Long commentId) {
+        commentService.delete(commentId);
+        return "redirect:/posts/" + postId.toString();
     }
 }
