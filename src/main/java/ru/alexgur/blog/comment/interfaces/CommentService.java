@@ -5,7 +5,7 @@ import java.util.List;
 import ru.alexgur.blog.comment.dto.CommentDto;
 
 public interface CommentService {
-    CommentDto add(Long postId, String text);
+    CommentDto add(CommentDto commentDto);
 
     CommentDto get(Long id);
 

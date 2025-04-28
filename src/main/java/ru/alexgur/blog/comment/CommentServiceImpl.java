@@ -20,14 +20,12 @@ public class CommentServiceImpl implements CommentService {
     private final PostService postService;
 
     @Override
-    public CommentDto add(Long postId, String text) {
-        if (!postService.checkIdExist(postId)) {
+    public CommentDto add(CommentDto commentDto) {
+        Comment comment = CommentMapper.dtoToComment(commentDto);
+
+        if (!postService.checkIdExist(comment.getPostId())) {
             throw new NotFoundException("Публикация с таким id не найдена");
         }
-
-        Comment comment = new Comment();
-        comment.setPostId(postId);
-        comment.setText(text);
 
         return CommentMapper.commentToDto(commentStorage.add(comment).orElse(null));
     }

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.system.exception.NotFoundException;
 import ru.alexgur.blog.tag.interfaces.TagService;
+import ru.alexgur.blog.comment.interfaces.CommentService;
 import ru.alexgur.blog.post.dto.PostDto;
 import ru.alexgur.blog.post.interfaces.PostService;
 import ru.alexgur.blog.post.interfaces.PostStorage;
@@ -27,6 +28,7 @@ public class PostServiceImpl implements PostService {
     private final String UPLOAD_DIR = "/uploads";
     private final PostStorage postStorage;
     private final TagService tagsService;
+    private final CommentService commentsService;
 
     @Override
     public PostDto add(String title, String text, String tags, MultipartFile image) {
@@ -128,9 +130,11 @@ public class PostServiceImpl implements PostService {
     private PostDto getImpl(Long id) {
         PostDto postSaved = PostMapper.postToDto(postStorage.get(id).orElse(null));
 
-        postSaved.setUrl(getImageUrl(postSaved.getId()));
+        postSaved.setUrl(getImageUrl(id));
 
-        postSaved.setTags(tagsService.getByPostId(postSaved.getId()));
+        postSaved.setTags(tagsService.getByPostId(id));
+
+        postSaved.setComments(commentsService.getByPostId(id));
 
         return postSaved;
     }
