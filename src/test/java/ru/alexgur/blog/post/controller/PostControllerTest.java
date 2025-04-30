@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -61,13 +62,12 @@ class PostControllerTest {
         jdbc.execute("DELETE FROM posts");
     }
 
-    // @Test
-    // void getStartPage() throws Exception {
-    // mockMvc.perform(get("/"))
-    // .andExpect(status().is3xxRedirection())
-    // .andExpect(redirectedUrl("feed"))
-    // .andExpect(view().name("redirect:feed"));
-    // }
+    @Test
+    void getStartPage() throws Exception {
+        mockMvc.perform(get("/posts/add"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("add-post"));
+    }
 
     @Test
     @Sql(scripts = "classpath:test-data/add-three-posts.sql")
@@ -82,44 +82,43 @@ class PostControllerTest {
                 .andExpect(content().string(containsString("Третья")));
     }
 
-    // @Test
-    // @Sql(scripts = "classpath:test-data/add-three-posts.sql")
-    // void getPost() throws Exception {
-    // var posts = getAllPost();
-    // for (var entry : posts.entrySet()) {
-    // mockMvc.perform(get("/post/" + entry.getKey()))
-    // .andExpect(status().isOk())
-    // .andExpect(view().name("post"))
-    // .andExpect(model().attributeExists("postDto", "newPostDto"))
-    // .andExpect(xpath("//span['" + entry.getKey() + "']").exists());
-    // }
-    // }
+    @Test
+    @Sql(scripts = "classpath:test-data/add-three-posts.sql")
+    void getPost() throws Exception {
+        for (Post post : getAllPost()) {
+            mockMvc.perform(get("/posts/" + post.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("post"))
+                    .andExpect(content().string(containsString(post.getTitle())));
+        }
+    }
 
-    // @Test
-    // @Sql(scripts = "classpath:test-data/add-three-posts.sql")
-    // void deletePost() throws Exception {
-    // Post post = getFirstPost();
-    // long postId = post.getId();
-    // String postName = post.getTitle();
+    @Test
+    @Sql(scripts = "classpath:test-data/add-three-posts.sql")
+    void deletePost() throws Exception {
+        Post post = getFirstPost();
+        long postId = post.getId();
+        String postName = post.getTitle();
 
-    // mockMvc.perform(get("/feed"))
-    // .andExpect(status().isOk())
-    // .andExpect(content().contentType("text/html;charset=UTF-8"))
-    // .andExpect(view().name("feed"))
-    // .andExpect(model().attributeExists("postPage", "pageSize", "isFiltered"))
-    // .andExpect(xpath("//a[text()='" + postName + "']/@href").exists());
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(view().name("post"))
+                .andExpect(model().attributeExists("post"))
+                .andExpect(content().string(containsString(post.getTitle())));
 
-    // mockMvc.perform(post("/post/" + postId).param("_method", "delete"))
-    // .andExpect(redirectedUrl("/feed"))
-    // .andExpect(view().name("redirect:/feed"));
+        mockMvc.perform(post("/posts/" + postId + "/delete").param("_method", "delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts"))
+                .andExpect(view().name("redirect:/posts"));
 
-    // mockMvc.perform(get("/feed"))
-    // .andExpect(status().isOk())
-    // .andExpect(content().contentType("text/html;charset=UTF-8"))
-    // .andExpect(view().name("feed"))
-    // .andExpect(model().attributeExists("postPage", "pageSize", "isFiltered"))
-    // .andExpect(xpath("//a[text()='" + postName + "']/@href").doesNotExist());
-    // }
+        mockMvc.perform(get("/posts"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(view().name("posts"))
+                .andExpect(model().attributeExists("posts"))
+                .andExpect(content().string(not(containsString(post.getTitle()))));
+    }
 
     // @Test
     // @Sql(scripts = "classpath:test-data/add-three-posts.sql")
@@ -134,14 +133,13 @@ class PostControllerTest {
     // .andExpect(xpath("//span[@id='likes']").string(String.valueOf(++likes)));
     // }
 
-    // private Post getFirstPost() throws NotFoundException {
-    // return postRepository.getAll(0, 10)
-    // .stream().findFirst()
-    // .orElseThrow(() -> new NotFoundException("пост не найден"));
-    // }
+    private Post getFirstPost() throws NotFoundException {
+        return postRepository.getAll(0, 10)
+                .stream().findFirst()
+                .orElseThrow(() -> new NotFoundException("пост не найден"));
+    }
 
-    // private Map<Long, String> getAllPost() {
-    // return postRepository.getAll(0, 10)
-    // .stream().collect(Collectors.toMap(Post::getId, Post::getText));
-    // }
+    private List<Post> getAllPost() {
+        return postRepository.getAll(0, 10);
+    }
 }

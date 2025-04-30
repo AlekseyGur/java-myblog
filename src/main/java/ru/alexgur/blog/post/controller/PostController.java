@@ -46,6 +46,7 @@ public class PostController {
     }
 
     @GetMapping("/add")
+    @ResponseStatus(HttpStatus.OK)
     public String addForm() {
         return "add-post";
     }
@@ -88,14 +89,12 @@ public class PostController {
 
     @PutMapping("/{id}/like")
     @ResponseStatus(HttpStatus.OK)
-    public void addLike(
-            @PathVariable(name = "id") Long id,
-                    @RequestParam(name = "like") boolean isLike) {
+    public void addLike(@PathVariable(name = "id") Long id,
+            @RequestParam(name = "like") boolean isLike) {
         postService.like(id, isLike);
     }
 
     @PostMapping(value = "/{postId}/delete", params = "_method=delete")
-    @ResponseStatus(HttpStatus.OK)
     public String delete(@PathVariable(name = "postId") Long postId) {
         postService.delete(postId);
         return "redirect:/posts";
