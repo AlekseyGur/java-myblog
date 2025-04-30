@@ -57,9 +57,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> getAll(String search, Integer pageSize, Integer pageNumber) {
         if (search != null) {
-            return PostMapper.postToDto(postStorage.find(search, pageSize, pageNumber));
+            return PostMapper.postToDto(postStorage.find(search, pageNumber, pageSize));
         }
-        return PostMapper.postToDto(postStorage.getAll(pageSize, pageNumber));
+        return PostMapper.postToDto(postStorage.getAll(pageNumber, pageSize));
     }
 
     @Override
