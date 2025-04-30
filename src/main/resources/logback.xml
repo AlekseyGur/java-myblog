@@ -1,0 +1,22 @@
+<configuration>
+
+    <!-- Общий уровень для всего приложения -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <!-- Отключаем DEBUG для Spring -->
+    <logger name="org.springframework" level="INFO" />
+    <logger name="org.springframework.test" level="INFO" />
+    <logger name="org.springframework.beans" level="INFO" />
+    <logger name="org.springframework.context" level="INFO" />
+    <logger name="org.springframework.test.context" level="INFO" />
+
+    <!-- Конфигурация вывода в консоль -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+</configuration>
