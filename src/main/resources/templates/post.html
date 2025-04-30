@@ -1,152 +1,111 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Пост</title>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-</head>
-<body>
-<h2><span th:text="${postDto.name}">название поста</span></h2>
-<img th:src="'data:image/jpeg;base64,' + ${postDto.base64Jpeg}" alt="Image" width="150"/>
-<h3>Содержание поста</h3>
-<section class="post-content" style="white-space: pre-line" th:text="${postDto.text}">Текст поста</section>
-<br/>
-<table>
-    <tr>
-        <td><img th:src="@{/images/heart.png}" width="30" alt="likes"/></td>
-        <td><span id="likes" th:text="${postDto.likes}">56</span></td>
-        <td>
-            <form th:action="@{/post/like/{id}(id=${postDto.id})}" method="post" style="display:inline;">
-                <input type="hidden"/>
-                <button type="submit">like</button>
-            </form>
-        </td>
-    </tr>
-</table>
-<br/>
-<b>Теги:</b>
-<br/>
-<br/>
-<table>
-    <tr>
-        <td>
-            <button type="submit" onclick="toggleForm()">edit post</button>
-        </td>
-        <td>
-            <form th:action="@{/post/{id}(id=${postDto.id})}" method="post" style="display:inline;">
-                <input type="hidden" name="_method" value="delete"/>
-                <button type="submit">delete post</button>
-            </form>
-        </td>
-    </tr>
-</table>
-<div class="form-container" id="editPostForm" style="display:none">
-    <h2>Редактировать пост</h2>
-    <form th:action="@{/post/{id}(id=${postDto.id})}" method="POST" enctype="multipart/form-data"
-          th:object="${newPostDto}">
-        <table>
-            <tr>
-                <td><label for="name">Название поста:</label></td>
-                <td><input type="text" id="name" name="name" th:required="required" style="width:800px;"/></td>
-            </tr>
-            <tr>
-                <td>Изображение:</td>
-                <td><input id="image" type="file" name="image" accept="image/jpeg" multiple="multiple"/></td>
-            </tr>
-            <tr>
-                <td><label for="text">Содержимое поста:</label></td>
-                <td><textarea id="text" name="text" th:required="required" rows="5" cols="91"></textarea></td>
-            </tr>
-            <tr>
-                <td><label for="tags">Введите теги через ";"</label></td>
-                <td><input type="text" id="tags" name="tags" th:required="required" style="width:800px;"/></td>
-            </tr>
-            <tr>
-                <td>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button type="submit">Save</button>
-                </td>
-            </tr>
-        </table>
-    </form>
-</div>
-<br/>
-<h3>Комментарии:</h3>
-<table>
-    <tr th:each="comment : ${postDto.commentsDto}">
-        <td>
-            <table>
-                <tr>
-                    <td>
-                        <section class="comment-content" style="white-space: pre-line" th:text="${comment.text}">текст
-                            комментария
-                        </section>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form th:action="@{/post/{postId}/comment/{commentId}(postId=${postDto.id}, commentId=${comment.id})}"
-                              method="POST" style="display:inline;">
-                            <input type="hidden" name="_method" value="delete"/>
-                            <button type="submit">delete comment</button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-<br/>
-<br/>
-<button class="btn-add" onclick="toggleForm2()">Add comment</button>
-<br/>
-<div class="form-container" style="display: none;" id="addComment">
-    <h4>Введите комментарий (для завершения Ctrl+Enter):</h4>
-    <form th:action="@{/post/{postId}/comment (postId=${postDto.id})}" method="POST">
-        <input type="hidden" name="_method" value="add"/>
-        <label>
-            <textarea th:required="required" name="text" rows="5" cols="91"></textarea>
-        </label>
-    </form>
-</div>
-<br/>
-<a th:href="@{/feed}" th:text="@{Вернуться на главную}"></a>
+    <title>Витрина товаров</title>
+    <script>
+        function editComment(id) {
+            var comment = document.getElementById("comment" + id);
+            var newComment = document.createElement("textarea");
+            newComment.innerHTML = comment.innerHTML;
+            newComment.rows = 3;
+            newComment.name = "text";
+            newComment.style = "width:100%;";
+            comment.parentNode.replaceChild(newComment, comment);
 
-<script>
-    function toggleForm() {
-        const form = document.getElementById('editPostForm');
-        form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    }
-</script>
+            var button = document.getElementById(id);
+            button.remove();
 
-<script type="text/javascript">
-    // <![CDATA[
-        function toggleForm2() {
-            const form = document.getElementById('addComment');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            document.body.addEventListener('keydown', (event) => {
-                if(event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                    event.target.form?.submit();
-                }
-            });
+            var newButton = document.createElement("button");
+            newButton.innerHTML = "&#10003;";
+            newButton.style="float:right;"
+            newComment.parentNode.appendChild(newButton);
         }
-    // ]]>
-</script>
 
-<script>
-    var uploadField = document.getElementById("image");
-    uploadField.onchange = function() {
-        if(this.files[0].size > 1000000){
-           alert("File is too big!");
-           this.value = "";
-        };
-    };
-</script>
+        function addComment(id) {
+            var button = document.getElementById("addCommentButton");
+            button.remove();
 
+            var form = document.getElementById("addCommentForm");
+
+            var newComment = document.createElement("textarea");
+            newComment.rows = 3;
+            newComment.name = "text";
+            newComment.style = "width:100%;";
+            form.appendChild(newComment);
+
+            var newButton = document.createElement("button");
+            newButton.innerHTML = "&#10003;";
+            newButton.style="float:right;"
+            form.appendChild(newButton);
+        }
+    </script>
+</head>
+
+<body>
+    <a href="/posts" style="float:right;">
+        <b>НА ГЛАВНУЮ &cudarrr;</b>
+    </a>
+    <table style="width:50%;margin-left:auto;margin-right:auto;">
+        <tr>
+            <td>
+                <form method="GET" th:action="${'/posts/'+post.getId()+'/edit'}">
+                    <button style="float:right;">РЕДАКТИРОВАТЬ ПОСТ</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" th:action="${'/posts/'+post.getId()+'/delete'}">
+                    <button style="float:right;">УДАЛИТЬ ПОСТ</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h2 th:text="${post.getTitle()}"></h2>
+                <p>
+                    <img height="300" th:src="${'http://localhost:8080/images/'+post.getId()}">
+                </p>
+                <p>
+                    <form th:action="${'/posts/'+post.getId()+'/like'}" method="post">
+                        <button name="like" value="true">&#x1F44D;</button>
+                        <span th:text="${post.getLikesCount()}"></span>
+                        <button name="like" value="false">&#128078;</button>
+                        <span th:text="${'комментарии '+post.getComments().size()}" style="float:right;"></span>
+                    </form>
+                </p>
+                <p>
+                    <span th:each="tag : ${post.getTags()}" th:text="${'#'+tag+' '}"></span>
+                </p>
+            </td>
+        </tr>
+        <tr th:each="textPart : ${post.getTextParts()}">
+            <td th:text="${textPart}"></td>
+        </tr>
+        <tr>
+            <td>
+                <hr>
+                <h2>Комментарии</h2>
+            </td>
+        </tr>
+        <tr th:each="comment : ${post.getComments()}">
+            <td style="border-left:thin solid grey;">
+                <form method="POST" th:action="${'/posts/'+post.getId()+'/comments/'+comment.getId()}">
+                    <span th:id="${'comment'+comment.getId()}" th:text="${comment.getText()}"></span>
+                    <button th:id="${comment.getId()}" onclick="editComment(this.id)" style="float:right;">&#9998;</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" th:action="${'/posts/'+post.getId()+'/comments/'+comment.getId()+'/delete'}">
+                    <button style="float:right;">&#10007;</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <form id="addCommentForm" th:action="${'/posts/'+post.getId()+'/comments'}" method="post">
+                    <button id="addCommentButton" style="float:right;" onclick="addComment()">Добавить комментарий</button>
+                </form>
+            </td>
+        </tr>
+    </table>
 </body>
-</html>
