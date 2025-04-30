@@ -69,6 +69,10 @@ class CommentControllerTest {
         assertTrue(true);
         mockMvc.perform(get("/posts"))
                 .andExpect(status().isOk());
+
+        mockMvc.perform(get("/posts/1"))
+                .andExpect(status().isOk());
+
         // mockMvc.perform(get("/posts/1/comment"))
         // .andExpect(status().isOk());
 

@@ -35,4 +35,12 @@ public class PostDto {
         return text.substring(0, 200);
     }
 
+    public String getTextPreview() {
+        return text.substring(0, 200);
+    }
+
+    public String getCommentsSize() {
+        return String.valueOf(comments != null ? comments.size() : 0);
+    }
+
 }
