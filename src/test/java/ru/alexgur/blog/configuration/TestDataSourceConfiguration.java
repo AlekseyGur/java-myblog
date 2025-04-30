@@ -32,4 +32,5 @@ public class TestDataSourceConfiguration {
     public NamedParameterJdbcTemplate njdbcTemplate(DataSource dataSource) {
         return new NamedParameterJdbcTemplate(dataSource);
     }
+
 }

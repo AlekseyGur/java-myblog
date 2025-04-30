@@ -9,6 +9,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <spring.version>6.2.3</spring.version>
@@ -23,7 +24,6 @@
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <hamcrest.version>3.0</hamcrest.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-
     </properties>
 
     <dependencies>

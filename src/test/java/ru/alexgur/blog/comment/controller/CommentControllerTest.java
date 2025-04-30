@@ -87,54 +87,52 @@ class CommentControllerTest {
         // + newComment + "']").exists());
     }
 
-    // @Test
-    // @Sql(scripts = "classpath:test-data/add-post.sql")
-    // void deleteComment() throws Exception {
-    // long postId = getFirstPostId();
-    // String commentText = "comment to delete " + (int) (Math.random() * 1000);
-    // long commentId = addCommentAndGetId(commentText, postId);
-    // mockMvc.perform(get("/post/" + postId))
-    // .andExpect(xpath("//section[@class='comment-content'][normalize-space(text())
-    // = '"
-    // + commentText + "']").exists());
-    // String url = String.format("/post/%s/comment/%s", postId, commentId);
-    // mockMvc.perform(post(url)
-    // .param("_method", "delete"))
-    // .andExpect(status().is3xxRedirection())
-    // .andExpect(redirectedUrl("/post/" + postId))
-    // .andExpect(view().name("redirect:/post/" + postId));
+    @Test
+    @Sql(scripts = "classpath:test-data/add-post.sql")
+    void deleteComment() throws Exception {
+        long postId = getFirstPostId();
+        String commentText = "comment to delete " + (int) (Math.random() * 1000);
+        long commentId = addCommentAndGetId(commentText, postId);
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(xpath("//section[@class='comment-content'][normalize-space(text()) = '"
+                        + commentText + "']").exists());
+        String url = String.format("/post/%s/comment/%s", postId, commentId);
+        mockMvc.perform(post(url)
+                .param("_method", "delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/post/" + postId))
+                .andExpect(view().name("redirect:/post/" + postId));
 
-    // mockMvc.perform(get("/post/" + postId))
-    // .andExpect(xpath("//section[@class='comment-content'][normalize-space(text())
-    // = '"
-    // + commentText + "']").doesNotExist());
-    // }
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(xpath("//section[@class='comment-content'][normalize-space(text()) = '"
+                        + commentText + "']").doesNotExist());
+    }
 
-    // private long getFirstPostId() throws NotFoundException {
-    // return postRepository.getAll(0, 0)
-    // .stream().findFirst()
-    // .orElseThrow(() -> new NotFoundException("пост не найден")).getId();
-    // }
+    private long getFirstPostId() throws NotFoundException {
+        return postRepository.getAll(0, 0)
+                .stream().findFirst()
+                .orElseThrow(() -> new NotFoundException("пост не найден")).getId();
+    }
 
-    // private long addCommentAndGetId(String commentText, long postId) {
-    // String query = """
-    // INSERT INTO comments(text,post_id)
-    // VALUES (?,?)
-    // """;
-    // KeyHolder keyHolder = new GeneratedKeyHolder();
-    // jdbc.update(connection -> {
-    // PreparedStatement ps = connection.prepareStatement(query,
-    // Statement.RETURN_GENERATED_KEYS);
-    // ps.setString(1, commentText);
-    // ps.setLong(2, postId);
-    // return ps;
-    // }, keyHolder);
-    // Number key = keyHolder.getKey();
-    // if (key == null) {
-    // throw new InternalException("Пост не добавлен");
-    // }
-    // return key.longValue();
+    private long addCommentAndGetId(String commentText, long postId) {
+        String query = """
+                INSERT INTO comments(text,post_id)
+                VALUES (?,?)
+                """;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(query,
+                    Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, commentText);
+            ps.setLong(2, postId);
+            return ps;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        if (key == null) {
+            throw new InternalException("Пост не добавлен");
+        }
+        return key.longValue();
 
-    // }
+    }
 
 }

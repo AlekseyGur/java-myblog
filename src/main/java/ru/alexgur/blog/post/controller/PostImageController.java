@@ -26,7 +26,7 @@ public class PostImageController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void load(@PathVariable Long id, HttpServletResponse response) {
+    public void load(@PathVariable(name = "id") Long id, HttpServletResponse response) {
         Optional<Image> imgOpt = postImageService.load(id);
         if (imgOpt.isPresent()) {
             returnImageInStream(response, imgOpt.get());

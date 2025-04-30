@@ -26,4 +26,13 @@ public class PostDto {
         return String.join(", ",
                 tags.stream().map(x -> x.getName()).toList());
     }
+
+    public String getLikesCount() {
+        return likes.toString();
+    }
+
+    public String getTextParts() {
+        return text.substring(0, 200);
+    }
+
 }
