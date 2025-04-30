@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Repository
 public class BaseRepository<T> {
     private final JdbcOperations jdbc;
     private final RowMapper<T> mapper;
@@ -102,7 +100,8 @@ public class BaseRepository<T> {
         try {
             njdbc.batchUpdate(query, params);
         } catch (DataAccessException e) {
-            throw new RuntimeException("Ошибка добавления множества данных: " + e.getMessage(), e);
+            throw new RuntimeException("Ошибка добавления множества данных: " +
+                    e.getMessage(), e);
         }
     }
 

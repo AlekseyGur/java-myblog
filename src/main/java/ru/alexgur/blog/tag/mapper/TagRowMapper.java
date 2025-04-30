@@ -1,23 +1,26 @@
 package ru.alexgur.blog.tag.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import ru.alexgur.blog.tag.model.Tag;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import ru.alexgur.blog.tag.model.Tag;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Component
+@Qualifier("tagRowMapper")
 public class TagRowMapper implements RowMapper<Tag> {
+
     @SuppressWarnings("null")
-    @Override
     @Nullable
+    @Override
     public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Tag post = new Tag();
-        post.setId(rs.getLong("id"));
-        post.setName(rs.getString("name"));
-        return post;
+        Tag tag = new Tag();
+        tag.setId(rs.getLong("id"));
+        tag.setName(rs.getString("name"));
+        return tag;
     }
 }
