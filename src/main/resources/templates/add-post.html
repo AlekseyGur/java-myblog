@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Витрина товаров</title>
+    <title th:text="${post==null ? 'Добавить публикацию' : 'Редактировать публикацию'}"></title>
 </head>
 
 <body>

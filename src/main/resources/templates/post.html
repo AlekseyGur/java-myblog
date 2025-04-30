@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Витрина товаров</title>
+    <title th:text="${post.getTitle()}"></title>
     <script>
         function editComment(id) {
             var comment = document.getElementById("comment" + id);
