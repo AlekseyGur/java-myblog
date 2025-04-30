@@ -18,7 +18,7 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
     private static final String POST_ADD = "INSERT INTO posts(title, text) VALUES (?, ?);";
     private static final String POST_CHECK_ID_EXIST = "SELECT id FROM posts WHERE id = ?;";
     private static final String POST_GET_BY_ID = "SELECT * FROM posts WHERE id = ?;";
-    private static final String POST_GET_ALL = "SELECT * FROM posts;";
+    private static final String POST_GET_ALL = "SELECT * FROM posts LIMIT ? OFFSET ?;";
     private static final String POST_UPDATE = "UPDATE posts SET title = ?, text = ? WHERE id = ? LIMIT 1;";
     private static final String POST_DELETE = "DELETE FROM posts WHERE id = ? LIMIT 1;";
 
@@ -53,7 +53,7 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
 
     @Override
     public List<Post> getAll(Integer offset, Integer limit) {
-        return findMany(POST_GET_ALL);// , limit, offset);
+        return findMany(POST_GET_ALL, limit, offset);
     }
 
     @Override

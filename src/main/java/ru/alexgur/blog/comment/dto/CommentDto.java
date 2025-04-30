@@ -12,4 +12,8 @@ public class CommentDto {
     private Long postId;
     private String text;
     private String url;
+
+    public String getUrl() {
+        return "/posts/" + (getId() != null ? getId().toString() : "null");
+    }
 }

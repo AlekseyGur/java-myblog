@@ -1,12 +1,9 @@
 package ru.alexgur.blog.comment.controller;
 
-// import ru.alexgur.blog.comment.dto.NewCommentDto;
-// import ru.alexgur.blog.comment.repository.CommentRepository;
 import ru.alexgur.blog.configuration.TestDataSourceConfiguration;
 import ru.alexgur.blog.configuration.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
 
-// import ru.alexgur.blog.post.repository.PostRepository;
 import com.sun.jdi.InternalException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
@@ -28,13 +25,13 @@ import org.springframework.web.context.WebApplicationContext;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
+import static org.hamcrest.Matchers.*;
 
 @SpringJUnitConfig(classes = { TestDataSourceConfiguration.class, TestWebConfiguration.class })
 @ActiveProfiles("test")
@@ -66,29 +63,18 @@ class CommentControllerTest {
     @Test
     @Sql(scripts = "classpath:test-data/add-post.sql")
     void addNewComment() throws Exception {
-        assertTrue(true);
-        mockMvc.perform(get("/posts"))
-                .andExpect(status().isOk());
+        long postId = getFirstPostId();
+        String newComment = "new test comment";
+        mockMvc.perform(post("/posts/" + postId + "/comments")
+                .param("_method", "add")
+                .param("text", newComment))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts/" + postId))
+                .andExpect(view().name("redirect:/posts/" + postId));
 
-        mockMvc.perform(get("/posts/1"))
-                .andExpect(status().isOk());
-
-        // mockMvc.perform(get("/posts/1/comment"))
-        // .andExpect(status().isOk());
-
-        // long postId = getFirstPostId();
-        // String newComment = "new test comment";
-        // mockMvc.perform(post("/post/" + postId + "/comment")
-        // .param("_method", "add")
-        // .param("text", newComment))
-        // .andExpect(status().is3xxRedirection())
-        // .andExpect(redirectedUrl("/post/" + postId))
-        // .andExpect(view().name("redirect:/post/" + postId));
-
-        // mockMvc.perform(get("/post/" + postId))
-        // .andExpect(xpath("//section[@class='comment-content'][normalize-space(text())
-        // = '"
-        // + newComment + "']").exists());
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(newComment)));
     }
 
     @Test
@@ -97,23 +83,24 @@ class CommentControllerTest {
         long postId = getFirstPostId();
         String commentText = "comment to delete " + (int) (Math.random() * 1000);
         long commentId = addCommentAndGetId(commentText, postId);
-        mockMvc.perform(get("/posts/" + postId))
-                .andExpect(xpath("//section[@class='comment-content'][normalize-space(text()) = '"
-                        + commentText + "']").exists());
-        String url = String.format("/post/%s/comment/%s", postId, commentId);
-        mockMvc.perform(post(url)
-                .param("_method", "delete"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/post/" + postId))
-                .andExpect(view().name("redirect:/post/" + postId));
 
         mockMvc.perform(get("/posts/" + postId))
-                .andExpect(xpath("//section[@class='comment-content'][normalize-space(text()) = '"
-                        + commentText + "']").doesNotExist());
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(commentText)));
+
+        String url = "/posts/" + postId + "/comments/" + commentId + "/delete";
+        mockMvc.perform(post(url).param("_method", "delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts/" + postId))
+                .andExpect(view().name("redirect:/posts/" + postId));
+
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString(commentText))));
     }
 
     private long getFirstPostId() throws NotFoundException {
-        return postRepository.getAll(0, 0)
+        return postRepository.getAll(0, 10)
                 .stream().findFirst()
                 .orElseThrow(() -> new NotFoundException("пост не найден")).getId();
     }

@@ -18,8 +18,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentStorage;
 
     @Override
-    public CommentDto add(CommentDto commentDto) {
-        Comment comment = CommentMapper.dtoToComment(commentDto);
+    public CommentDto add(Long postId, String text) {
+        Comment comment = new Comment(null, postId, text);
 
         checkPostExist(comment.getPostId());
 
