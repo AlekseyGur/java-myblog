@@ -22,8 +22,8 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
     private static final String POST_UPDATE = "UPDATE posts SET title = ?, text = ? WHERE id = ? LIMIT 1;";
     private static final String POST_DELETE = "DELETE FROM posts WHERE id = ? LIMIT 1;";
 
-    private static final String POST_LIKE = "UPDATE posts SET likes = likes - 1 WHERE id = ? LIMIT 1;";
-    private static final String POST_DISLIKE = "UPDATE posts SET likes = likes + 1 WHERE id = ? LIMIT 1;";
+    private static final String POST_LIKE = "UPDATE posts SET likes = likes + 1 WHERE id = ? LIMIT 1;";
+    private static final String POST_DISLIKE = "UPDATE posts SET likes = likes - 1 WHERE id = ? LIMIT 1;";
 
     private static final String POST_FIND = """
             SELECT *

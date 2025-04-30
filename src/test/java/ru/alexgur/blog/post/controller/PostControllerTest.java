@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -21,9 +20,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -31,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
 import static org.hamcrest.Matchers.*;
 
 @SpringJUnitConfig(classes = { TestDataSourceConfiguration.class,
@@ -98,7 +93,6 @@ class PostControllerTest {
     void deletePost() throws Exception {
         Post post = getFirstPost();
         long postId = post.getId();
-        String postName = post.getTitle();
 
         mockMvc.perform(get("/posts/" + postId))
                 .andExpect(status().isOk())
@@ -120,18 +114,20 @@ class PostControllerTest {
                 .andExpect(content().string(not(containsString(post.getTitle()))));
     }
 
-    // @Test
-    // @Sql(scripts = "classpath:test-data/add-three-posts.sql")
-    // void addLike() throws Exception {
-    // Post post = getFirstPost();
-    // long postId = post.getId();
-    // long likes = post.getLikes();
-    // mockMvc.perform(post("/post/like/" + postId))
-    // .andExpect(redirectedUrl("/post/" + postId))
-    // .andExpect(view().name("redirect:/post/" + postId));
-    // mockMvc.perform(get("/post/" + postId))
-    // .andExpect(xpath("//span[@id='likes']").string(String.valueOf(++likes)));
-    // }
+    @Test
+    @Sql(scripts = "classpath:test-data/add-three-posts.sql")
+    void addLike() throws Exception {
+        Post post = getFirstPost();
+        long postId = post.getId();
+        long likes = post.getLikes();
+
+        mockMvc.perform(post("/posts/" + postId + "/like").param("like", "true"))
+                .andExpect(redirectedUrl("/posts/" + postId))
+                .andExpect(view().name("redirect:/posts/" + postId));
+
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(content().string(containsString(String.valueOf(++likes))));
+    }
 
     private Post getFirstPost() throws NotFoundException {
         return postRepository.getAll(0, 10)

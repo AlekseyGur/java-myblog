@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -56,7 +55,7 @@ public class PostController {
         PostDto post = postService.get(id);
 
         if (post == null) {
-            return "redirect:/add";
+            return "redirect:/posts/add";
         }
 
         model.addAttribute("post", post);
@@ -78,8 +77,8 @@ public class PostController {
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public String editPost(@PathVariable(name = "id") Long id,
-                    @RequestParam(value = "title") String title,
-            @RequestParam(value = "text") String text,
+            @RequestParam(value = "title") String title,
+                    @RequestParam(value = "text") String text,
             @RequestParam(value = "image") MultipartFile image,
             @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
         PostDto savedPost = postService.patch(id, title, text, tags, image);
@@ -87,11 +86,11 @@ public class PostController {
         return "redirect:" + savedPost.getUrl();
     }
 
-    @PutMapping("/{id}/like")
-    @ResponseStatus(HttpStatus.OK)
-    public void addLike(@PathVariable(name = "id") Long id,
+    @PostMapping("/{id}/like")
+    public String addLike(@PathVariable(name = "id") Long id,
             @RequestParam(name = "like") boolean isLike) {
         postService.like(id, isLike);
+        return "redirect:/posts/" + id.toString();
     }
 
     @PostMapping(value = "/{postId}/delete", params = "_method=delete")

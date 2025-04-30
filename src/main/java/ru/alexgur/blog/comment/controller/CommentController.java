@@ -22,8 +22,8 @@ public class CommentController {
     public String addComment(
             @PathVariable(name = "postId") Long postId,
             @RequestParam(value = "text") String text) {
-        CommentDto savedComment = commentService.add(postId, text);
-        return "redirect:" + savedComment.getUrl();
+        commentService.add(postId, text);
+        return "redirect:/posts/" + postId.toString();
     }
 
     @PostMapping("/{id}")
@@ -33,7 +33,7 @@ public class CommentController {
             @RequestBody CommentDto commentDto) {
         CommentDto savedComment = commentService.patch(commentDto);
 
-        return "redirect:" + savedComment.getUrl();
+        return "redirect:/posts/" + savedComment.getPostId().toString();
     }
 
     @PostMapping(value = "/{postId}/comments/{commentId}/delete", params = "_method=delete")
