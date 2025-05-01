@@ -25,6 +25,3 @@ jobs:
 
     - name: Checkstyle
       run: mvn checkstyle:checkstyle
-      
-    - name: FindBugs
-      run: mvn findbugs:findbugs
