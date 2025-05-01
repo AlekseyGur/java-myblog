@@ -1,7 +1,7 @@
 package ru.alexgur.blog.post.interfaces;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import ru.alexgur.blog.post.dto.PostDto;
@@ -11,7 +11,9 @@ public interface PostService {
 
     PostDto get(Long id);
 
-    List<PostDto> getAll(String search, Integer pageSize, Integer pageNumber);
+    Page<PostDto> find(String search, Pageable pageable);
+
+    Page<PostDto> getAll(Pageable pageable);
 
     void delete(Long id);
 

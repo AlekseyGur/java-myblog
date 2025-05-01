@@ -29,14 +29,11 @@ public class BaseRepository<T> {
     }
 
     public boolean checkIdExist(String query, Long id) {
-        try {
-            Long count = jdbc.queryForObject(query, Long.class, id);
-            return count != null ? count > 0 : false;
-        } catch (EmptyResultDataAccessException e) {
-            return false;
-        } catch (Exception e) {
-            return false;
-        }
+        return getNumberOrZeroImpl(query, id) != 0;
+    }
+
+    public long getNumberOrZero(String query, Object... params) {
+        return getNumberOrZeroImpl(query, params);
     }
 
     public Optional<T> findOne(String query, Object... params) {
@@ -112,5 +109,21 @@ public class BaseRepository<T> {
 
     public void update(String query, Object... params) {
         jdbc.update(query, params);
+    }
+
+    private Long getNumberOrZeroImpl(String query, Object... params) {
+        try {
+            Long count;
+            if (params == null) {
+                count = jdbc.queryForObject(query, Long.class);
+            } else {
+                count = jdbc.queryForObject(query, Long.class, params);
+            }
+            return count != null ? count : 0L;
+        } catch (EmptyResultDataAccessException e) {
+            return 0L;
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 }

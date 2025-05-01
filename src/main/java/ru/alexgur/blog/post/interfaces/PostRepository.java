@@ -1,7 +1,9 @@
 package ru.alexgur.blog.post.interfaces;
 
-import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import ru.alexgur.blog.post.model.Post;
 
@@ -10,9 +12,9 @@ public interface PostRepository {
 
     Optional<Post> get(Long id);
 
-    List<Post> find(String search, Integer offset, Integer limit);
+    Page<Post> find(String search, Pageable pageable);
 
-    List<Post> getAll(Integer offset, Integer limit);
+    Page<Post> getAll(Pageable pageable);
 
     Optional<Post> update(Post post);
 
@@ -23,4 +25,6 @@ public interface PostRepository {
     Optional<Post> dislike(Long id);
 
     boolean checkIdExist(Long id);
+
+    Long getTotal();
 }

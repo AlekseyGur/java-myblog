@@ -18,7 +18,7 @@ import ru.alexgur.blog.comment.interfaces.CommentService;
 public class CommentController {
     private final CommentService commentService;
 
-    @PostMapping("/{postId}/comments")
+    @PostMapping(value = "/{postId}/comments", params = "_method=add")
     public String addComment(
             @PathVariable(name = "postId") Long postId,
             @RequestParam(value = "text") String text) {

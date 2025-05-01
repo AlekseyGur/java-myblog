@@ -1,9 +1,12 @@
 package ru.alexgur.blog.post.repository;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +22,8 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
     private static final String POST_CHECK_ID_EXIST = "SELECT id FROM posts WHERE id = ?;";
     private static final String POST_GET_BY_ID = "SELECT * FROM posts WHERE id = ?;";
     private static final String POST_GET_ALL = "SELECT * FROM posts LIMIT ? OFFSET ?;";
+    private static final String POST_GET_ALL_TOTAL = "SELECT COUNT(*) FROM posts;";
+    private static final String POST_GET_TOTAL = "SELECT COUNT(*) FROM posts;";
     private static final String POST_UPDATE = "UPDATE posts SET title = ?, text = ? WHERE id = ? LIMIT 1;";
     private static final String POST_DELETE = "DELETE FROM posts WHERE id = ? LIMIT 1;";
 
@@ -31,6 +36,11 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
             WHERE title LIKE ?
             OR text LIKE ?
             LIMIT ? OFFSET ?;""";
+    private static final String POST_FIND_TOTAL = """
+            SELECT COUNT(*)
+            FROM posts
+            WHERE title LIKE ?
+            OR text LIKE ?;""";
 
     @Autowired
     public PostRepositoryImpl(NamedParameterJdbcTemplate njdbc, PostRowMapper mapper) {
@@ -52,14 +62,39 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
     }
 
     @Override
-    public List<Post> getAll(Integer offset, Integer limit) {
-        return findMany(POST_GET_ALL, limit, offset);
+    public Page<Post> getAll(Pageable pageable) {
+        long totalRows = getNumberOrZero(POST_GET_ALL_TOTAL);
+
+        if (totalRows == 0) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
+        List<Post> posts = findMany(POST_GET_ALL,
+                pageable.getPageSize(),
+                pageable.getOffset());
+
+        return new PageImpl<>(posts, pageable, totalRows);
     }
 
     @Override
-    public List<Post> find(String search, Integer offset, Integer limit) {
+    public Page<Post> find(String search, Pageable pageable) {
+        if (search == null) {
+            search = "";
+        }
+
+        long totalRows = getNumberOrZero(POST_FIND_TOTAL);
+
+        if (totalRows == 0) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
         String q = "%" + search + "%";
-        return findMany(POST_FIND, q, q, limit, offset);
+        List<Post> posts = findMany(POST_FIND,
+                q, q,
+                pageable.getPageSize(),
+                pageable.getOffset());
+
+        return new PageImpl<>(posts, pageable, totalRows);
     }
 
     @Override
@@ -96,5 +131,10 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
 
     private Optional<Post> getPostImpl(Long id) {
         return findOne(POST_GET_BY_ID, id);
+    }
+
+    @Override
+    public Long getTotal() {
+        return getNumberOrZero(POST_GET_TOTAL);
     }
 }

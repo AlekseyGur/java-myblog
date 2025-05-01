@@ -1,7 +1,8 @@
 package ru.alexgur.blog.post.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ui.Model;
 
 import lombok.RequiredArgsConstructor;
+import ru.alexgur.blog.post.dto.Paging;
 import ru.alexgur.blog.post.dto.PostDto;
 import ru.alexgur.blog.post.interfaces.PostService;
 
@@ -39,8 +41,20 @@ public class PostController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
             Model model) {
-        List<PostDto> posts = postService.getAll(search, pageSize, pageNumber);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<PostDto> posts;
+
+        if (search != null) {
+            posts = postService.find(search, pageable);
+        } else {
+            posts = postService.getAll(pageable);
+        }
+
         model.addAttribute("posts", posts);
+        model.addAttribute("paging", new Paging(posts));
+        model.addAttribute("search", search);
+
         return "posts";
     }
 

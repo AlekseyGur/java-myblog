@@ -3,13 +3,13 @@ package ru.alexgur.blog.comment.controller;
 import ru.alexgur.blog.configuration.TestDataSourceConfiguration;
 import ru.alexgur.blog.configuration.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
-
 import com.sun.jdi.InternalException;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -100,7 +100,7 @@ class CommentControllerTest {
     }
 
     private long getFirstPostId() throws NotFoundException {
-        return postRepository.getAll(0, 10)
+        return postRepository.getAll(Pageable.ofSize(10))
                 .stream().findFirst()
                 .orElseThrow(() -> new NotFoundException("пост не найден")).getId();
     }

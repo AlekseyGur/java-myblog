@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +27,7 @@ import ru.alexgur.blog.post.model.Post;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-    private final String UPLOAD_DIR = "/uploads";
+    private final String UPLOAD_DIR = "/upload";
     private final PostRepository postStorage;
     private final TagService tagsService;
     private final CommentService commentsService;
@@ -55,11 +57,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAll(String search, Integer pageSize, Integer pageNumber) {
-        if (search != null) {
-            return PostMapper.postToDto(postStorage.find(search, pageNumber, pageSize));
-        }
-        return PostMapper.postToDto(postStorage.getAll(pageNumber, pageSize));
+    public Page<PostDto> find(String search, Pageable pageable) {
+        return PostMapper.toDto(postStorage.find(search, pageable));
+    }
+
+    @Override
+    public Page<PostDto> getAll(Pageable pageable) {
+        return PostMapper.toDto(postStorage.getAll(pageable));
     }
 
     @Override
@@ -101,7 +105,7 @@ public class PostServiceImpl implements PostService {
             saveTags(postSaved.getId(), tags);
         }
 
-        return PostMapper.postToDto(postStorage.update(postSaved).orElse(null));
+        return PostMapper.toDto(postStorage.update(postSaved).orElse(null));
     }
 
     private void saveImage(Long id, MultipartFile image) {
@@ -128,7 +132,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostDto getImpl(Long id) {
-        PostDto postSaved = PostMapper.postToDto(postStorage.get(id).orElse(null));
+        PostDto postSaved = PostMapper.toDto(postStorage.get(id).orElse(null));
 
         postSaved.setUrl(getImageUrl(id));
 

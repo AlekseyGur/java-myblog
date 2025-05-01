@@ -9,6 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -19,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -130,12 +131,12 @@ class PostControllerTest {
     }
 
     private Post getFirstPost() throws NotFoundException {
-        return postRepository.getAll(0, 10)
+        return postRepository.getAll(Pageable.ofSize(1))
                 .stream().findFirst()
                 .orElseThrow(() -> new NotFoundException("пост не найден"));
     }
 
-    private List<Post> getAllPost() {
-        return postRepository.getAll(0, 10);
+    private Page<Post> getAllPost() {
+        return postRepository.getAll(Pageable.ofSize(10));
     }
 }
