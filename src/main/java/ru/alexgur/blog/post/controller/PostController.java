@@ -77,12 +77,11 @@ public class PostController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public String addPost(
             @RequestParam(value = "title") String title,
             @RequestParam(value = "text") String text,
-            @RequestParam(value = "image") MultipartFile image,
-            @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+                    @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
         PostDto savedPost = postService.add(title, text, tags, image);
 
         return "redirect:" + savedPost.getUrl();
