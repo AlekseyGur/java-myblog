@@ -120,7 +120,7 @@
                 <configuration>
                     <url>http://localhost:8080/manager/text</url>
                     <server>tomcat-server</server>
-                    <path>/myblog</path>
+                    <path>/</path>
                 </configuration>
             </plugin>
         </plugins>

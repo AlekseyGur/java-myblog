@@ -24,7 +24,7 @@
             <location>/</location>
             <max-file-size>10485760</max-file-size>
             <max-request-size>10485760</max-request-size>
-            <file-size-threshold>0</file-size-threshold>
+            <file-size-threshold>99999999</file-size-threshold>
         </multipart-config>
     </servlet>
     <servlet-mapping>

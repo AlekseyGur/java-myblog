@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,13 +19,14 @@ import ru.alexgur.blog.post.model.Image;
 @Service
 @RequiredArgsConstructor
 public class PostImageServiceImpl implements PostImageService {
-    private final String UPLOAD_DIR = "/uploads";
+    @Value("${upload.dir}")
+    private String UPLOAD_DIR;
 
     @Override
     public void save(Long postId, MultipartFile image) {
         String fullPath = getImageUrl(postId);
         try {
-            Path path = Paths.get("uploads");
+            Path path = Paths.get(UPLOAD_DIR);
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
             }

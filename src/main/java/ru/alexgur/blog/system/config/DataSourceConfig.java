@@ -19,7 +19,7 @@ import javax.sql.DataSource;
 public class DataSourceConfig {
     @Bean
     @Profile("dev")
-    public DataSource dataSource() {
+    public DataSource h2DataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .setName("myblogTestDB")
@@ -29,7 +29,7 @@ public class DataSourceConfig {
 
     @Bean
     @Profile("prod")
-    public DataSource dataSource(
+    public DataSource sqlDataSource(
             @Value("${datasource.sql.url}") String url,
             @Value("${datasource.sql.username}") String username,
             @Value("${datasource.sql.password}") String password,
