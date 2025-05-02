@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,9 @@ import ru.alexgur.blog.post.model.Post;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-    private final String UPLOAD_DIR = "/upload";
+
+    @Value("${upload.dir}")
+    private String UPLOAD_DIR;
     private final PostRepository postStorage;
     private final TagService tagsService;
     private final CommentService commentsService;
@@ -134,7 +137,7 @@ public class PostServiceImpl implements PostService {
     private PostDto getImpl(Long id) {
         PostDto postSaved = PostMapper.toDto(postStorage.get(id).orElse(null));
 
-        postSaved.setUrl(getImageUrl(id));
+        postSaved.setUrl(getPostUrl(id));
 
         postSaved.setTags(tagsService.getByPostId(id));
 
@@ -145,5 +148,9 @@ public class PostServiceImpl implements PostService {
 
     private String getImageUrl(Long postId) {
         return UPLOAD_DIR + "/" + postId;
+    }
+
+    private String getPostUrl(Long postId) {
+        return "/posts/" + postId;
     }
 }
