@@ -4,7 +4,8 @@ import ru.alexgur.blog.configuration.TestDataSourceConfiguration;
 import ru.alexgur.blog.configuration.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
 import ru.alexgur.blog.post.model.Post;
-import javassist.NotFoundException;
+import ru.alexgur.blog.system.exception.NotFoundException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

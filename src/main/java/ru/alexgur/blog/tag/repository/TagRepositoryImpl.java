@@ -3,7 +3,6 @@ package ru.alexgur.blog.tag.repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -24,7 +23,6 @@ public class TagRepositoryImpl extends BaseRepository<Tag> implements TagReposit
 
     private static final String TAG_ADD_MANY_POST = "INSERT INTO films_genres(tag_id, post_id) VALUES (:tagId, :postId)";
 
-    @Autowired
     public TagRepositoryImpl(NamedParameterJdbcTemplate njdbc, TagRowMapper mapper) {
         super(njdbc, mapper);
     }

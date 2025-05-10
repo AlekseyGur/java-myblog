@@ -3,7 +3,6 @@ package ru.alexgur.blog.post.repository;
 import java.util.Optional;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +41,6 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
             WHERE title LIKE ?
             OR text LIKE ?;""";
 
-    @Autowired
     public PostRepositoryImpl(NamedParameterJdbcTemplate njdbc, PostRowMapper mapper) {
         super(njdbc, mapper);
     }

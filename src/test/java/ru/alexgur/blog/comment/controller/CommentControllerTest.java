@@ -1,23 +1,19 @@
 package ru.alexgur.blog.comment.controller;
 
-import ru.alexgur.blog.configuration.TestDataSourceConfiguration;
-import ru.alexgur.blog.configuration.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
-import com.sun.jdi.InternalException;
-import javassist.NotFoundException;
+import ru.alexgur.blog.system.exception.NotFoundException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -33,10 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.hamcrest.Matchers.*;
 
-@SpringJUnitConfig(classes = { TestDataSourceConfiguration.class, TestWebConfiguration.class })
 @ActiveProfiles("test")
-@WebAppConfiguration
-@TestPropertySource(locations = "classpath:test-application.properties")
+@SpringBootTest
 class CommentControllerTest {
 
     @Autowired
@@ -120,7 +114,7 @@ class CommentControllerTest {
         }, keyHolder);
         Number key = keyHolder.getKey();
         if (key == null) {
-            throw new InternalException("Пост не добавлен");
+            throw new RuntimeException("Пост не добавлен");
         }
         return key.longValue();
 

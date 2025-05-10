@@ -3,7 +3,6 @@ package ru.alexgur.blog.comment.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +22,6 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     private static final String COMMENT_UPDATE = "UPDATE comments SET text = ?, text = ? WHERE id = ? LIMIT 1;";
     private static final String COMMENT_DELETE = "DELETE FROM comments WHERE id = ? LIMIT 1;";
 
-    @Autowired
     public CommentRepositoryImpl(NamedParameterJdbcTemplate njdbc, CommentRowMapper mapper) {
         super(njdbc, mapper);
     }
