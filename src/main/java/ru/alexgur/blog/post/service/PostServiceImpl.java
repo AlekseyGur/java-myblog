@@ -7,17 +7,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.system.exception.NotFoundException;
+import ru.alexgur.blog.tag.dto.TagDto;
 import ru.alexgur.blog.tag.interfaces.TagService;
+import ru.alexgur.blog.comment.dto.CommentDto;
 import ru.alexgur.blog.comment.interfaces.CommentService;
 import ru.alexgur.blog.post.dto.PostDto;
 import ru.alexgur.blog.post.interfaces.PostService;
@@ -56,17 +60,20 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto get(Long id) {
         return Optional.ofNullable(getImpl(id))
+                .map(this::addPostInfo)
                 .orElseThrow(() -> new NotFoundException("Публикация с таким id не найдена"));
     }
 
     @Override
     public Page<PostDto> find(String search, Pageable pageable) {
-        return PostMapper.toDto(postStorage.find(search, pageable));
+        Page<PostDto> postSaved = PostMapper.toDto(postStorage.find(search, pageable));
+        return addPostInfo(postSaved);
     }
 
     @Override
     public Page<PostDto> getAll(Pageable pageable) {
-        return PostMapper.toDto(postStorage.getAll(pageable));
+        Page<PostDto> postSaved = PostMapper.toDto(postStorage.getAll(pageable));
+        return addPostInfo(postSaved);
     }
 
     @Override
@@ -136,14 +143,32 @@ public class PostServiceImpl implements PostService {
 
     private PostDto getImpl(Long id) {
         PostDto postSaved = PostMapper.toDto(postStorage.get(id).orElse(null));
+        return addPostInfo(postSaved);
+    }
 
-        postSaved.setUrl(getPostUrl(id));
+    private List<PostDto> addPostInfo(List<PostDto> posts) {
+        List<Long> postsIds = posts.stream().map(PostDto::getId).toList();
 
-        postSaved.setTags(tagsService.getByPostId(id));
+        Map<Long, List<TagDto>> tags = tagsService.getByPostId(postsIds);
+        Map<Long, List<CommentDto>> comments = commentsService.getByPostId(postsIds);
 
-        postSaved.setComments(commentsService.getByPostId(id));
+        return posts.stream()
+                .map(x -> {
+                    x.setUrl(getPostUrl(x.getId()));
+                    x.setTags(tags.getOrDefault(x.getId(), List.of()));
+                    x.setComments(comments.getOrDefault(x.getId(), List.of()));
+                    return x;
+                }).toList();
+    }
 
-        return postSaved;
+    private PostDto addPostInfo(PostDto post) {
+        return addPostInfo(List.of(post)).get(0);
+    }
+
+    private Page<PostDto> addPostInfo(Page<PostDto> posts) {
+        return new PageImpl<>(addPostInfo(posts.getContent()),
+                posts.getPageable(),
+                posts.getTotalElements());
     }
 
     private String getImageUrl(Long postId) {

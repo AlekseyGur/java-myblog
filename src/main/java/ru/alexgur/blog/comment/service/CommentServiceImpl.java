@@ -1,6 +1,8 @@
 package ru.alexgur.blog.comment.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,15 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> getByPostId(Long postId) {
         return CommentMapper.commentToDto(commentStorage.getByPostId(postId));
+    }
+
+    @Override
+    public Map<Long, List<CommentDto>> getByPostId(List<Long> postIds) {
+
+        return commentStorage.getByPostId(postIds)
+                .stream()
+                .map(CommentMapper::commentToDto)
+                .collect(Collectors.groupingBy(CommentDto::getPostId, Collectors.toList()));
     }
 
     @Override

@@ -10,7 +10,9 @@ public interface CommentRepository {
 
     Optional<Comment> get(Long id);
 
-    List<Comment> getByPostId(Long userId);
+    List<Comment> getByPostId(Long postId);
+
+    List<Comment> getByPostId(List<Long> postIds);
 
     Optional<Comment> update(Comment comment);
 

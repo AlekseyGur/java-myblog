@@ -59,7 +59,9 @@ public class BaseRepository<T> {
         try {
             return njdbc.query(query, params, mapper);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Ошибка при получении списка записей из базы данных");
+            // throw new InternalServerException("Ошибка при получении списка записей из
+            // базы данных");
+            throw new RuntimeException("Ошибка при получении IdToId" + e.getMessage(), e);
         }
     }
 
@@ -68,6 +70,14 @@ public class BaseRepository<T> {
             return jdbc.query(query, (rs, rowNum) -> rs.getLong(1), params);
         } catch (DataAccessException e) {
             throw new InternalServerException("Ошибка при получении id записи в базе данных");
+        }
+    }
+
+    public <V> List<V> findManyIdToId(String query, RowMapper<V> pairMapper, SqlParameterSource params) {
+        try {
+            return njdbc.query(query, params, pairMapper);
+        } catch (DataAccessException e) {
+            throw new InternalServerException("Ошибка при получении IdToId");
         }
     }
 

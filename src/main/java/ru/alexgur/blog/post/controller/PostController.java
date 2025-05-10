@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.alexgur.blog.post.dto.Paging;
 import ru.alexgur.blog.post.dto.PostDto;
 import ru.alexgur.blog.post.interfaces.PostService;
@@ -28,6 +29,7 @@ import ru.alexgur.blog.post.interfaces.PostService;
 @RequiredArgsConstructor
 @RequestMapping("/posts")
 @Validated
+@Slf4j
 public class PostController {
     private final PostService postService;
 

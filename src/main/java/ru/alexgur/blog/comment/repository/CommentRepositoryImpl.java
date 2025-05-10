@@ -3,7 +3,9 @@ package ru.alexgur.blog.comment.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import ru.alexgur.blog.comment.interfaces.CommentRepository;
@@ -19,6 +21,7 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     private static final String COMMENT_CHECK_POST_EXIST = "SELECT id FROM posts WHERE id = ?;";
     private static final String COMMENT_GET_BY_ID = "SELECT * FROM comments WHERE id = ?;";
     private static final String COMMENT_GET_BY_POST_ID = "SELECT * FROM comments WHERE post_id = ?;";
+    private static final String COMMENT_GET_BY_POST_IDS = "SELECT * FROM comments WHERE post_id IN (:postIds);";
     private static final String COMMENT_UPDATE = "UPDATE comments SET text = ?, text = ? WHERE id = ? LIMIT 1;";
     private static final String COMMENT_DELETE = "DELETE FROM comments WHERE id = ? LIMIT 1;";
 
@@ -43,6 +46,12 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     @Override
     public List<Comment> getByPostId(Long postId) {
         return findMany(COMMENT_GET_BY_POST_ID, postId);
+    }
+
+    @Override
+    public List<Comment> getByPostId(List<Long> postIds) {
+        SqlParameterSource parameters = new MapSqlParameterSource("postIds", postIds);
+        return findMany(COMMENT_GET_BY_POST_IDS, parameters);
     }
 
     @Override

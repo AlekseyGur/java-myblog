@@ -22,12 +22,20 @@ public class PostDto {
     private String url;
     private String imagePath;
     private Integer likes;
-    private List<CommentDto> comments;
-    private List<TagDto> tags;
 
-    public String getTagsAsText() {
-        return String.join(", ",
-                tags.stream().map(x -> x.getName()).toList());
+    private List<CommentDto> comments = List.of();
+    private List<TagDto> tags = List.of();
+
+    public List<String> getTags() {
+        return tags.stream().map(TagDto::getName).toList();
+    }
+
+    public List<Long> getTagsIds() {
+        return tags.stream().map(TagDto::getId).toList();
+    }
+
+    public List<Long> getCommentsIds() {
+        return comments.stream().map(CommentDto::getId).toList();
     }
 
     public String getLikesCount() {
@@ -35,11 +43,11 @@ public class PostDto {
     }
 
     public String getTextParts() {
-        return text.substring(0, 200);
+        return text.length() > 200 ? text.substring(0, 200) : text;
     }
 
     public String getTextPreview() {
-        return text.substring(0, 200);
+        return text.length() > 200 ? text.substring(0, 200) : text;
     }
 
     public String getCommentsSize() {
