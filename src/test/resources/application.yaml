@@ -13,24 +13,11 @@ upload:
   dir.images: classpath:upload/images
 
 ---
-# Профиль prod
+# Профиль test
 spring:
   config:
     activate:
-      on-profile: prod
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/myblog
-    driverClassName: org.postgresql.Driver
-    username: myblog
-    password: 
-
----
-# Профиль dev
-spring:
-  config:
-    activate:
-      on-profile: dev
+      on-profile: test
 
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
@@ -45,4 +32,3 @@ spring:
     console:
       enabled: true
       path: /h2-console
-

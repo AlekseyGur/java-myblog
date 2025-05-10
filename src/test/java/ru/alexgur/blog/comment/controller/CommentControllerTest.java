@@ -1,5 +1,6 @@
 package ru.alexgur.blog.comment.controller;
 
+import ru.alexgur.blog.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
 import ru.alexgur.blog.system.exception.NotFoundException;
 
@@ -7,12 +8,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,9 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.hamcrest.Matchers.*;
 
-@ActiveProfiles("test")
-@SpringBootTest
-class CommentControllerTest {
+class CommentControllerTest extends TestWebConfiguration {
 
     @Autowired
     private WebApplicationContext webApplicationContext;

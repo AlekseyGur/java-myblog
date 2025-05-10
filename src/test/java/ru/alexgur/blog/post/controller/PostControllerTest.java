@@ -1,10 +1,9 @@
 package ru.alexgur.blog.post.controller;
 
-import ru.alexgur.blog.configuration.TestDataSourceConfiguration;
-import ru.alexgur.blog.configuration.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
 import ru.alexgur.blog.post.model.Post;
 import ru.alexgur.blog.system.exception.NotFoundException;
+import ru.alexgur.blog.TestWebConfiguration;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,11 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -31,12 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.hamcrest.Matchers.*;
 
-@SpringJUnitConfig(classes = { TestDataSourceConfiguration.class,
-        TestWebConfiguration.class })
-@ActiveProfiles("test")
-@WebAppConfiguration
-@TestPropertySource(locations = "classpath:test-application.properties")
-class PostControllerTest {
+class PostControllerTest extends TestWebConfiguration {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
