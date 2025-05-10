@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import ru.alexgur.blog.system.exception.NotFoundException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/images")
+@Validated
 public class PostImageController {
     private final PostImageService postImageService;
 
@@ -57,3 +59,33 @@ public class PostImageController {
         }
     }
 }
+
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.stereotype.Controller;
+// import org.springframework.web.bind.annotation.PostMapping;
+// import org.springframework.web.bind.annotation.RequestParam;
+// import org.springframework.web.multipart.MultipartFile;
+
+// import java.io.IOException;
+// import java.nio.file.Files;
+// import java.nio.file.Path;
+// import java.nio.file.Paths;
+
+// @Controller
+// public class ImageUploadController {
+
+// @Value("${upload.dir.images}")
+// private String uploadDir;
+
+// @PostMapping("/upload")
+// public String uploadFile(@RequestParam("file") MultipartFile file) {
+// try {
+// byte[] bytes = file.getBytes();
+// Path path = Paths.get(uploadDir + file.getOriginalFilename());
+// Files.write(path, bytes);
+// return "redirect:/success";
+// } catch (IOException e) {
+// e.printStackTrace();
+// return "redirect:/error";
+// }
+// }

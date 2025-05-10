@@ -3,12 +3,15 @@ package ru.alexgur.blog.post.dto;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import ru.alexgur.blog.comment.dto.CommentDto;
 import ru.alexgur.blog.tag.dto.TagDto;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDto {
@@ -42,5 +45,4 @@ public class PostDto {
     public String getCommentsSize() {
         return String.valueOf(comments != null ? comments.size() : 0);
     }
-
 }

@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.post.dto.Paging;
@@ -23,12 +27,13 @@ import ru.alexgur.blog.post.interfaces.PostService;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/posts")
+@Validated
 public class PostController {
     private final PostService postService;
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public String get(@PathVariable(name = "id") Long id, Model model) {
+    public String get(@PathVariable @Positive Long id, Model model) {
         PostDto post = postService.get(id);
         model.addAttribute("post", post);
         return "post";
