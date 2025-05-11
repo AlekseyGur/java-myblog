@@ -1,9 +1,9 @@
 package ru.alexgur.blog.comment.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -21,30 +21,32 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto add(Long postId, String text) {
-        Comment comment = new Comment(null, postId, text);
+        checkPostExist(postId);
 
-        checkPostExist(comment.getPostId());
-
-        return CommentMapper.commentToDto(commentStorage.add(comment).orElse(null));
+        Comment comment = new Comment();
+        comment.setPostId(postId);
+        comment.setText(text);
+        return CommentMapper.toDto(commentStorage.add(comment).orElse(null));
     }
 
     @Override
     public CommentDto get(Long postId) {
-        return CommentMapper.commentToDto(commentStorage.get(postId).orElse(null));
+        return CommentMapper.toDto(commentStorage.get(postId).orElse(null));
     }
 
     @Override
     public List<CommentDto> getByPostId(Long postId) {
-        return CommentMapper.commentToDto(commentStorage.getByPostId(postId));
+        return CommentMapper.toDto(commentStorage.getByPostId(postId));
     }
 
     @Override
     public Map<Long, List<CommentDto>> getByPostId(List<Long> postIds) {
-
-        return commentStorage.getByPostId(postIds)
-                .stream()
-                .map(CommentMapper::commentToDto)
-                .collect(Collectors.groupingBy(CommentDto::getPostId, Collectors.toList()));
+        HashMap<Long, List<CommentDto>> res = new HashMap<>();
+        for (Comment comment : commentStorage.getByPostId(postIds)) {
+            CommentDto commentDto = CommentMapper.toDto(comment);
+            res.computeIfAbsent(comment.getPostId(), k -> new ArrayList<>()).add(commentDto);
+        }
+        return res;
     }
 
     @Override
@@ -53,14 +55,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto patch(CommentDto commentDto) {
-        Comment commentSaved = checkAccess(commentDto);
+    public CommentDto patch(Long commentId, String text) {
+        Comment commentSaved = checkAccess(commentId);
 
-        if (commentDto.getText() != null) {
-            commentSaved.setText(commentDto.getText());
+        System.out.println(text);
+        if (text != null) {
+            commentSaved.setText(text);
         }
 
-        return CommentMapper.commentToDto(commentStorage.update(commentSaved).orElse(null));
+        return CommentMapper.toDto(commentStorage.update(commentSaved).orElse(null));
     }
 
     @Override
@@ -68,14 +71,11 @@ public class CommentServiceImpl implements CommentService {
         return commentStorage.checkIdExist(id);
     }
 
-    private Comment checkAccess(CommentDto comment) {
-        Long commentId = comment.getId();
+    private Comment checkAccess(Long commentId) {
 
-        if (comment == null || !checkIdExist(commentId)) {
+        if (commentId == null || !checkIdExist(commentId)) {
             throw new NotFoundException("Комментарий с таким id не найден");
         }
-
-        checkPostExist(comment.getPostId());
 
         Comment commentSaved = commentStorage.get(commentId).get();
 

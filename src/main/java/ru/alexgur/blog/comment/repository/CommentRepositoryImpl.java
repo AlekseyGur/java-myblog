@@ -22,7 +22,7 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     private static final String COMMENT_GET_BY_ID = "SELECT * FROM comments WHERE id = ?;";
     private static final String COMMENT_GET_BY_POST_ID = "SELECT * FROM comments WHERE post_id = ?;";
     private static final String COMMENT_GET_BY_POST_IDS = "SELECT * FROM comments WHERE post_id IN (:postIds);";
-    private static final String COMMENT_UPDATE = "UPDATE comments SET text = ?, text = ? WHERE id = ? LIMIT 1;";
+    private static final String COMMENT_UPDATE = "UPDATE comments SET text = ? WHERE id = ? LIMIT 1;";
     private static final String COMMENT_DELETE = "DELETE FROM comments WHERE id = ? LIMIT 1;";
 
     public CommentRepositoryImpl(NamedParameterJdbcTemplate njdbc, CommentRowMapper mapper) {
@@ -58,8 +58,7 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     public Optional<Comment> update(Comment comment) {
         update(COMMENT_UPDATE,
                 comment.getText(),
-                comment.getPostId(),
-                comment.getId());
+                        comment.getId());
 
         return getCommentImpl(comment.getId());
     }

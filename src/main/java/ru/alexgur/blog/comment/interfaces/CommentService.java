@@ -16,7 +16,7 @@ public interface CommentService {
 
     void delete(Long id);
 
-    CommentDto patch(CommentDto comment);
+    CommentDto patch(Long commentId, String text);
 
     boolean checkIdExist(Long id);
 }
