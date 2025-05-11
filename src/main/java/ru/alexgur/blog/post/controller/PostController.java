@@ -18,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.post.dto.Paging;
 import ru.alexgur.blog.post.dto.PostDto;
@@ -93,7 +92,6 @@ public class PostController {
     }
 
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public String editPost(@PathVariable(name = "id") Long id,
             @RequestParam(value = "title") String title,
                     @RequestParam(value = "text") String text,
@@ -101,11 +99,11 @@ public class PostController {
             @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
         PostDto savedPost = postService.patch(id, title, text, tags, image);
 
-        return "redirect:" + savedPost.getUrl();
+        return "redirect:/posts/" + savedPost.getId();
     }
 
     @PostMapping("/{postId}/like")
-            public String addLike(@PathVariable(name = "postId") Long postId,
+    public String addLike(@PathVariable(name = "postId") Long postId,
             @RequestParam(name = "like") boolean isLike) {
         postService.like(postId, isLike);
         return "redirect:/posts/" + postId.toString();

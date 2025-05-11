@@ -108,6 +108,7 @@ public class PostServiceImpl implements PostService {
         }
 
         if (!tags.isBlank()) {
+            removeTags(postSaved.getId());
             saveTags(postSaved.getId(), tags);
         }
 
@@ -116,6 +117,10 @@ public class PostServiceImpl implements PostService {
 
     private void saveImage(Long postId, MultipartFile image) {
         postImageService.save(postId, image);
+    }
+
+    private void removeTags(Long postId) {
+        tagsService.deleteByPostId(postId);
     }
 
     private void saveTags(Long id, String tags) {

@@ -24,6 +24,8 @@ public class TagRepositoryImpl extends BaseRepository<Tag> implements TagReposit
 
     private static final String TAG_GET_BY_POST_ID = "SELECT t.* FROM tags AS t JOIN tags_post p ON t.id = p.tag_id WHERE p.post_id = ?;";
 
+    private static final String DELETE_BY_POST_ID = "DELETE FROM tags_post WHERE post_id = ?;";
+
     private static final String TAG_POST_PAIR = """
                 SELECT
                     tp.post_id,
@@ -88,11 +90,16 @@ public class TagRepositoryImpl extends BaseRepository<Tag> implements TagReposit
         return getByPostIdImpl(postId);
     }
 
+    @Override
+    public void deleteByPostId(Long postId) {
+        delete(DELETE_BY_POST_ID, postId);
+    }
+
     private List<Tag> getByPostIdImpl(Long postId) {
         return findMany(TAG_GET_BY_POST_ID, postId);
     }
 
-    public List<Tag> getByNameImpl(List<String> tags) {
+    private List<Tag> getByNameImpl(List<String> tags) {
         SqlParameterSource parameters = new MapSqlParameterSource("name", tags);
         return findMany(TAG_GET_BY_NAME, parameters);
     }

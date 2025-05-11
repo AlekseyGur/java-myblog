@@ -61,6 +61,11 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public void deleteByPostId(Long postId) {
+        tagRepository.deleteByPostId(postId);
+    }
+
+    @Override
     public Map<Long, List<TagDto>> getByPostId(List<Long> postIds) {
         HashMap<Long, List<TagDto>> res = new HashMap<>();
 

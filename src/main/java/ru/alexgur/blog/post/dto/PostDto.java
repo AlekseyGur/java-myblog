@@ -30,6 +30,10 @@ public class PostDto {
         return tags.stream().map(TagDto::getName).toList();
     }
 
+    public String getTagsAsText() {
+        return String.join(", ", tags.stream().map(TagDto::getName).toList());
+    }
+
     public List<Long> getTagsIds() {
         return tags.stream().map(TagDto::getId).toList();
     }

@@ -17,4 +17,6 @@ public interface TagRepository {
     List<Tag> getByPostId(Long postId);
 
     List<Tag> addTagsIdsToPost(Long postId, List<Long> tagsIds);
+
+    void deleteByPostId(Long postId);
 }
