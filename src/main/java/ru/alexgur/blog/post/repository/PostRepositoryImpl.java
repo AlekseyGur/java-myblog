@@ -79,14 +79,14 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
         if (search == null) {
             search = "";
         }
+        String q = "%" + search + "%";
 
-        long totalRows = getNumberOrZero(POST_FIND_TOTAL);
+        long totalRows = getNumberOrZero(POST_FIND_TOTAL, q, q);
 
         if (totalRows == 0) {
             return new PageImpl<>(List.of(), pageable, 0);
         }
 
-        String q = "%" + search + "%";
         List<Post> posts = findMany(POST_FIND,
                 q, q,
                 pageable.getPageSize(),

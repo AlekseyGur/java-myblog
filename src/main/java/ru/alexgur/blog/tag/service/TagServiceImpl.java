@@ -62,13 +62,17 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Map<Long, List<TagDto>> getByPostId(List<Long> postIds) {
+        HashMap<Long, List<TagDto>> res = new HashMap<>();
+
         List<PairIdsDto> postToTag = tagRepository.getPostIdTagIdPair(postIds);
         List<Long> tagsIds = postToTag.stream().map(PairIdsDto::getLast).toList();
+        if (tagsIds.isEmpty()) {
+            return res;
+        }
 
         Map<Long, Tag> tags = tagRepository.getById(tagsIds).stream()
                 .collect(Collectors.toMap(Tag::getId, Function.identity()));
 
-        HashMap<Long, List<TagDto>> res = new HashMap<>();
         for (PairIdsDto row : postToTag) {
             Long postId = row.getFirst();
             Long tagId = row.getLast();

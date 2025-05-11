@@ -18,9 +18,8 @@ import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ru.alexgur.blog.post.dto.Paging;
 import ru.alexgur.blog.post.dto.PostDto;
 import ru.alexgur.blog.post.interfaces.PostService;
@@ -29,7 +28,6 @@ import ru.alexgur.blog.post.interfaces.PostService;
 @RequiredArgsConstructor
 @RequestMapping("/posts")
 @Validated
-@Slf4j
 public class PostController {
     private final PostService postService;
 
@@ -45,14 +43,14 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     public String getAll(
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") @Positive Integer pageSize,
+                    @RequestParam(value = "pageNumber", defaultValue = "1") @Positive Integer pageNumber,
             Model model) {
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         Page<PostDto> posts;
 
-        if (search != null) {
+        if (search != null && !search.isBlank()) {
             posts = postService.find(search, pageable);
         } else {
             posts = postService.getAll(pageable);

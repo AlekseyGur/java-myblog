@@ -66,6 +66,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostDto> getAll(Pageable pageable) {
         Page<PostDto> postSaved = PostMapper.toDto(postStorage.getAll(pageable));
+
+        System.err.println(postSaved.toString());
+
         return addPostInfo(postSaved);
     }
 

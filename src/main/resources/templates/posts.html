@@ -21,6 +21,7 @@
                     <p>
                         <label for="pageSize">Число постов: </label>
                         <select id="pageSize" name="pageSize" onchange="this.form.submit()">
+                            <option value="2" th:selected="${paging.pageSize()==2}">2</option>
                             <option value="5" th:selected="${paging.pageSize()==5}">5</option>
                             <option value="10" th:selected="${paging.pageSize()==10}">10</option>
                             <option value="20" th:selected="${paging.pageSize()==20}">20</option>
