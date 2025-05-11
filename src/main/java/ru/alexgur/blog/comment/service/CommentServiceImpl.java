@@ -58,7 +58,6 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto patch(Long commentId, String text) {
         Comment commentSaved = checkAccess(commentId);
 
-        System.out.println(text);
         if (text != null) {
             commentSaved.setText(text);
         }

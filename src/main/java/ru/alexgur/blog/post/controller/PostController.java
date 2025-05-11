@@ -41,7 +41,8 @@ public class PostController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public String getAll(
-            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "tag", required = false) String tag,
+                    @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "pageSize", defaultValue = "10") @Positive Integer pageSize,
                     @RequestParam(value = "pageNumber", defaultValue = "1") @Positive Integer pageNumber,
             Model model) {
@@ -51,6 +52,8 @@ public class PostController {
 
         if (search != null && !search.isBlank()) {
             posts = postService.find(search, pageable);
+        } else if (tag != null && !tag.isBlank()) {
+            posts = postService.getByTagName(tag, pageable);
         } else {
             posts = postService.getAll(pageable);
         }
@@ -61,6 +64,7 @@ public class PostController {
 
         return "posts";
     }
+
 
     @GetMapping("/add")
     @ResponseStatus(HttpStatus.OK)

@@ -52,7 +52,7 @@
                 </p>
                 <p>
                     <span th:each="tag : ${post.getTags()}">
-                        <a th:href="${'/posts#'+tag}" th:text="${'#'+tag}"></a>
+                        <a th:href="${'/posts?tag='+tag}" th:text="${'#'+tag}"></a>
                     </span>
                 </p>
             </td>

@@ -76,16 +76,11 @@
                 <p th:text="${post.getText()}"></p>
                 <p>
                     <span th:each="tag : ${post.getTags()}">
-                        <a th:href="${'/posts#'+tag}" th:text="${'#'+tag}"></a>
+                        <a th:href="${'/posts?tag=#'+tag}" th:text="${'#'+tag}"></a>
                     </span>
                 </p>
             </td>
         </tr>
-        <!--~
-            <tr th:each="textPart : ${post.getTextParts()}">
-                <td th:text="${textPart}"></td>
-            </tr>
-        -->
         <tr>
             <td>
                 <hr>

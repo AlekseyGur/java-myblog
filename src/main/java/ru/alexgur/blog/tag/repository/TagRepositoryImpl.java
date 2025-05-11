@@ -19,8 +19,8 @@ import ru.alexgur.blog.system.repository.BaseRepository;
 @Repository
 public class TagRepositoryImpl extends BaseRepository<Tag> implements TagRepository {
     private static final String TAG_ADD_MANY = "INSERT INTO tags(name) VALUES (:name);";
-    private static final String TAG_GET_BY_NAME = "SELECT * FROM tags WHERE name in (:name);";
-    private static final String TAG_GET_BY_ID = "SELECT * FROM tags WHERE id in (:ids);";
+    private static final String TAG_GET_BY_NAME = "SELECT * FROM tags WHERE name IN (:name);";
+    private static final String TAG_GET_BY_ID = "SELECT * FROM tags WHERE id IN (:ids);";
 
     private static final String TAG_GET_BY_POST_ID = "SELECT t.* FROM tags AS t JOIN tags_post p ON t.id = p.tag_id WHERE p.post_id = ?;";
 
@@ -37,6 +37,7 @@ public class TagRepositoryImpl extends BaseRepository<Tag> implements TagReposit
             """;
 
     private static final String TAG_ADD_MANY_POST = "INSERT INTO tags_post(tag_id, post_id) VALUES (:tagId, :postId)";
+    private static final String GET_POST_IDS_BY_TAG_NAME = "SELECT p.post_id FROM tags AS t JOIN tags_post p ON t.id = p.tag_id WHERE t.name LIKE ?;";
 
     public TagRepositoryImpl(NamedParameterJdbcTemplate njdbc, TagRowMapper mapper) {
         super(njdbc, mapper);
@@ -83,6 +84,12 @@ public class TagRepositoryImpl extends BaseRepository<Tag> implements TagReposit
     @Override
     public List<Tag> getByName(List<String> tags) {
         return getByNameImpl(tags);
+    }
+
+    @Override
+    public List<Long> getPostsIdsByTagName(String tag) {
+        String q = "%" + tag + "%";
+        return findManyIds(GET_POST_IDS_BY_TAG_NAME, q);
     }
 
     @Override

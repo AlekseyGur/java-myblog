@@ -32,6 +32,10 @@ public class BaseRepository<T> {
         return getNumberOrZeroImpl(query, id) != 0;
     }
 
+    public long getNumberOrZero(String query, SqlParameterSource params) {
+        return getNumberOrZeroImpl(query, params);
+    }
+
     public long getNumberOrZero(String query, Object... params) {
         return getNumberOrZeroImpl(query, params);
     }
@@ -61,7 +65,7 @@ public class BaseRepository<T> {
         } catch (DataAccessException e) {
             // throw new InternalServerException("Ошибка при получении списка записей из
             // базы данных");
-            throw new RuntimeException("Ошибка при получении IdToId" + e.getMessage(), e);
+            throw new RuntimeException("Ошибка при получении списка записей" + e.getMessage(), e);
         }
     }
 
@@ -130,6 +134,17 @@ public class BaseRepository<T> {
                 count = jdbc.queryForObject(query, Long.class, params);
             }
             return count != null ? count : 0L;
+        } catch (EmptyResultDataAccessException e) {
+            return 0L;
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    private Long getNumberOrZeroImpl(String query, SqlParameterSource params) {
+        try {
+            return Optional.ofNullable(njdbc.queryForObject(query, params, Long.class))
+                    .orElse(0L);
         } catch (EmptyResultDataAccessException e) {
             return 0L;
         } catch (Exception e) {

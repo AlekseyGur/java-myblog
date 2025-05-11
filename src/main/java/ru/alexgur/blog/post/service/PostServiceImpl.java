@@ -27,7 +27,7 @@ import ru.alexgur.blog.post.model.Post;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-    private final PostRepository postStorage;
+    private final PostRepository postRepository;
     private final TagService tagsService;
     private final CommentService commentsService;
     private final PostImageService postImageService;
@@ -37,7 +37,7 @@ public class PostServiceImpl implements PostService {
         Post post = new Post();
         post.setTitle(title);
         post.setText(text);
-        Post postSaved = postStorage.add(post).orElse(null);
+        Post postSaved = postRepository.add(post).orElse(null);
 
         if (!image.isEmpty()) {
             saveImage(postSaved.getId(), image);
@@ -59,13 +59,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostDto> find(String search, Pageable pageable) {
-        Page<PostDto> postSaved = PostMapper.toDto(postStorage.find(search, pageable));
+        Page<PostDto> postSaved = PostMapper.toDto(postRepository.find(search, pageable));
         return addPostInfo(postSaved);
     }
 
     @Override
     public Page<PostDto> getAll(Pageable pageable) {
-        Page<PostDto> postSaved = PostMapper.toDto(postStorage.getAll(pageable));
+        Page<PostDto> postSaved = PostMapper.toDto(postRepository.getAll(pageable));
 
         System.err.println(postSaved.toString());
 
@@ -73,27 +73,38 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Page<PostDto> getByTagName(String tag, Pageable pageable) {
+        List<Long> postIds = tagsService.getPostsIdsByTagName(tag);
+        if (postIds.isEmpty()) {
+            return getZeroResultsPage(pageable);
+        } else {
+            Page<PostDto> postSaved = PostMapper.toDto(postRepository.getByIds(postIds, pageable));
+            return addPostInfo(postSaved);
+        }
+    }
+
+    @Override
     public void like(Long id, boolean isLike) {
         if (isLike) {
-            postStorage.like(id);
+            postRepository.like(id);
         } else {
-            postStorage.dislike(id);
+            postRepository.dislike(id);
         }
     }
 
     @Override
     public void delete(Long id) {
-        postStorage.delete(id);
+        postRepository.delete(id);
     }
 
     @Override
     public boolean checkIdExist(Long id) {
-        return postStorage.checkIdExist(id);
+        return postRepository.checkIdExist(id);
     }
 
     @Override
     public PostDto patch(Long id, String title, String text, String tags, MultipartFile image) {
-        Post postSaved = postStorage.get(id).orElse(null);
+        Post postSaved = postRepository.get(id).orElse(null);
 
         if (title != null) {
             postSaved.setTitle(title);
@@ -112,7 +123,11 @@ public class PostServiceImpl implements PostService {
             saveTags(postSaved.getId(), tags);
         }
 
-        return PostMapper.toDto(postStorage.update(postSaved).orElse(null));
+        return PostMapper.toDto(postRepository.update(postSaved).orElse(null));
+    }
+
+    private Page<PostDto> getZeroResultsPage(Pageable pageable) {
+        return new PageImpl<>(List.of(), pageable, 0);
     }
 
     private void saveImage(Long postId, MultipartFile image) {
@@ -132,7 +147,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostDto getImpl(Long id) {
-        PostDto postSaved = PostMapper.toDto(postStorage.get(id).orElse(null));
+        PostDto postSaved = PostMapper.toDto(postRepository.get(id).orElse(null));
         return addPostInfo(postSaved);
     }
 

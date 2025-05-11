@@ -16,5 +16,7 @@ public interface TagService {
 
     Map<Long, List<TagDto>> getByPostId(List<Long> postIds);
 
+    List<Long> getPostsIdsByTagName(String tag);
+
     void deleteByPostId(Long postId);
 }

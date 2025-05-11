@@ -61,6 +61,11 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public List<Long> getPostsIdsByTagName(String tag) {
+        return tagRepository.getPostsIdsByTagName(tag);
+    }
+
+    @Override
     public void deleteByPostId(Long postId) {
         tagRepository.deleteByPostId(postId);
     }
