@@ -10,4 +10,6 @@ public interface PostImageService {
     Optional<Image> load(Long postId);
 
     void save(Long postId, MultipartFile image);
+
+    String getImageUrl(Long postId);
 }

@@ -1,10 +1,5 @@
 package ru.alexgur.blog.post.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +20,7 @@ import ru.alexgur.blog.comment.dto.CommentDto;
 import ru.alexgur.blog.comment.interfaces.CommentService;
 import ru.alexgur.blog.post.dto.PostDto;
 import ru.alexgur.blog.post.interfaces.PostService;
+import ru.alexgur.blog.post.interfaces.PostImageService;
 import ru.alexgur.blog.post.interfaces.PostRepository;
 import ru.alexgur.blog.post.mapper.PostMapper;
 import ru.alexgur.blog.post.model.Post;
@@ -32,12 +28,10 @@ import ru.alexgur.blog.post.model.Post;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-
-    @Value("${upload.dir}")
-    private String UPLOAD_DIR;
     private final PostRepository postStorage;
     private final TagService tagsService;
     private final CommentService commentsService;
+    private final PostImageService postImageService;
 
     @Override
     public PostDto add(String title, String text, String tags, MultipartFile image) {
@@ -107,7 +101,7 @@ public class PostServiceImpl implements PostService {
             postSaved.setText(text);
         }
 
-        if (!image.isEmpty()) {
+        if (image != null && !image.isEmpty()) {
             saveImage(postSaved.getId(), image);
         }
 
@@ -118,19 +112,8 @@ public class PostServiceImpl implements PostService {
         return PostMapper.toDto(postStorage.update(postSaved).orElse(null));
     }
 
-    private void saveImage(Long id, MultipartFile image) {
-        try {
-            Path path = Paths.get("uploads");
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
-            }
-
-            String fullPath = getImageUrl(id);
-            image.transferTo(new File(fullPath));
-
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при сохранении изображения", e);
-        }
+    private void saveImage(Long postId, MultipartFile image) {
+        postImageService.save(postId, image);
     }
 
     private void saveTags(Long id, String tags) {
@@ -154,9 +137,11 @@ public class PostServiceImpl implements PostService {
 
         return posts.stream()
                 .map(x -> {
-                    x.setUrl(getPostUrl(x.getId()));
-                    x.setTags(tags.getOrDefault(x.getId(), List.of()));
-                    x.setComments(comments.getOrDefault(x.getId(), List.of()));
+                    Long postId = x.getId();
+                    x.setUrl(getPostUrl(postId));
+                    x.setTags(tags.getOrDefault(postId, List.of()));
+                    x.setComments(comments.getOrDefault(postId, List.of()));
+                    x.setImageUrl(postImageService.getImageUrl(postId));
                     return x;
                 }).toList();
     }
@@ -169,10 +154,6 @@ public class PostServiceImpl implements PostService {
         return new PageImpl<>(addPostInfo(posts.getContent()),
                 posts.getPageable(),
                 posts.getTotalElements());
-    }
-
-    private String getImageUrl(Long postId) {
-        return UPLOAD_DIR + "/" + postId;
     }
 
     private String getPostUrl(Long postId) {

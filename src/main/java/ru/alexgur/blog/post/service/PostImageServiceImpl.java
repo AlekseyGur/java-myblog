@@ -15,22 +15,35 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.post.interfaces.PostImageService;
 import ru.alexgur.blog.post.model.Image;
+import ru.alexgur.blog.system.exception.ConstraintViolationException;
 
 @Service
 @RequiredArgsConstructor
 public class PostImageServiceImpl implements PostImageService {
-    @Value("${upload.dir}")
+    @Value("${upload.images.base-url}")
+    private String UPLOAD_URL_DIR;
+
+    @Value("${upload.images.dir}")
     private String UPLOAD_DIR;
+
+    @Value("${upload.images.format}")
+    private String UPLOAD_IMAGE_FORMAT;
 
     @Override
     public void save(Long postId, MultipartFile image) {
-        String fullPath = getImageUrl(postId);
+        if (image == null) {
+            return;
+        }
+
+        validateImageThrowError(image);
+
         try {
             Path path = Paths.get(UPLOAD_DIR);
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
             }
 
+            String fullPath = getImageUrlImpl(path.toString(), postId);
             image.transferTo(new File(fullPath));
 
         } catch (IOException e) {
@@ -40,8 +53,10 @@ public class PostImageServiceImpl implements PostImageService {
 
     @Override
     public Optional<Image> load(Long postId) {
-        String fullPath = getImageUrl(postId);
         try {
+            Path path = Paths.get(UPLOAD_DIR);
+            String fullPath = getImageUrlImpl(path.toString(), postId);
+
             File file = new File(fullPath);
             if (!file.exists()) {
                 return Optional.ofNullable(null);
@@ -58,7 +73,19 @@ public class PostImageServiceImpl implements PostImageService {
         }
     }
 
-    private String getImageUrl(Long postId) {
-        return UPLOAD_DIR + "/" + postId;
+    @Override
+    public String getImageUrl(Long postId) {
+        return getImageUrlImpl(UPLOAD_URL_DIR, postId);
+    }
+
+    private String getImageUrlImpl(String baseDir, Long postId) {
+        return baseDir + "/" + postId.toString() + "." + UPLOAD_IMAGE_FORMAT;
+    }
+
+    private void validateImageThrowError(MultipartFile image) {
+        String fileName = image != null ? image.getOriginalFilename() : "";
+        if (fileName == null || fileName.isBlank() || !fileName.endsWith("." + UPLOAD_IMAGE_FORMAT)) {
+            throw new ConstraintViolationException("Файл должен иметь расширение " + UPLOAD_IMAGE_FORMAT);
+        }
     }
 }

@@ -16,8 +16,10 @@ logging:
       springframework: INFO
 
 upload:
-  dir: classpath:upload
-  dir.images: classpath:upload/images
+  images:
+    dir: /tmp/upload/blog/images
+    base-url: /images
+    format: jpg
 
 ---
 # Профиль test

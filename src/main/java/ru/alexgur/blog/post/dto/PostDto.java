@@ -20,7 +20,7 @@ public class PostDto {
     private String text;
 
     private String url;
-    private String imagePath;
+    private String imageUrl;
     private Integer likes;
 
     private List<CommentDto> comments = List.of();
