@@ -39,8 +39,6 @@ public class PostImageServiceImpl implements PostImageService {
     public ResponseEntity<StreamingResponseBody> load(Long postId) {
         Optional<Image> imgOpt = loadImageFile(postId);
 
-        System.out.println(imgOpt.get().getContentType());
-
         if (imgOpt.isEmpty()) {
             throw new NotFoundException("Файл не найден");
         }

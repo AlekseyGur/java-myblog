@@ -24,7 +24,6 @@ public class PostImageController {
     @GetMapping("/{postId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<StreamingResponseBody> load(@PathVariable(name = "postId") @Positive Long postId) {
-        System.out.println(postId.toString());
         return postImageService.load(postId);
     }
 }
