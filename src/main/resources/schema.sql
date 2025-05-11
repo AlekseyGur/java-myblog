@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS tags (
 );
 
 CREATE TABLE IF NOT EXISTS tags_post (
-    tag_id BIGINT REFERENCES tags(id),
-    post_id BIGINT REFERENCES posts(id),
+    tag_id BIGINT REFERENCES tags(id) ON DELETE CASCADE,
+    post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE,
     
     PRIMARY KEY (post_id, tag_id)
 );
