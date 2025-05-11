@@ -6,7 +6,7 @@ logging:
   level:
     root: ERROR
     org:
-      springframework: ERROR
+      springframework: DEBUG
 
 spring:
   main:

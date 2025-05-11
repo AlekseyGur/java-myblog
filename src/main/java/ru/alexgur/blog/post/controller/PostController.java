@@ -106,11 +106,11 @@ public class PostController {
         return "redirect:" + savedPost.getUrl();
     }
 
-    @PostMapping("/{id}/like")
-    public String addLike(@PathVariable(name = "id") Long id,
+    @PostMapping("/{postId}/like")
+            public String addLike(@PathVariable(name = "postId") Long postId,
             @RequestParam(name = "like") boolean isLike) {
-        postService.like(id, isLike);
-        return "redirect:/posts/" + id.toString();
+        postService.like(postId, isLike);
+        return "redirect:/posts/" + postId.toString();
     }
 
     @PostMapping(value = "/{postId}/delete")
