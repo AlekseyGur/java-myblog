@@ -1,13 +1,11 @@
 package ru.alexgur.blog.post.interfaces;
 
-import java.util.Optional;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
-
-import ru.alexgur.blog.post.model.Image;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 public interface PostImageService {
-    Optional<Image> load(Long postId);
+    ResponseEntity<StreamingResponseBody> load(Long postId);
 
     void save(Long postId, MultipartFile image);
 
