@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.post.dto.Paging;
@@ -64,7 +63,6 @@ public class PostController {
 
         return "posts";
     }
-
 
     @GetMapping("/add")
     @ResponseStatus(HttpStatus.OK)

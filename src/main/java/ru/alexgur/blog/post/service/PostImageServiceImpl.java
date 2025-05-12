@@ -26,12 +26,15 @@ import ru.alexgur.blog.system.exception.NotFoundException;
 @Service
 @RequiredArgsConstructor
 public class PostImageServiceImpl implements PostImageService {
+    @SuppressWarnings("checkstyle:MemberName")
     @Value("${upload.images.base-url}")
     private String UPLOAD_URL_DIR;
 
+    @SuppressWarnings("checkstyle:MemberName")
     @Value("${upload.images.dir}")
     private String UPLOAD_DIR;
 
+    @SuppressWarnings("checkstyle:MemberName")
     @Value("${upload.images.format}")
     private String UPLOAD_IMAGE_FORMAT;
 

@@ -40,3 +40,12 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+plugins {
+    id 'checkstyle'
+}
+
+checkstyle {
+    toolVersion = '8.48'
+    configFile = file('checkstyle.xml')
+}
