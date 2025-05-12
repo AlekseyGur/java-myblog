@@ -40,8 +40,8 @@ public class PostController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public String getAll(
-            @RequestParam(value = "tag", required = false) String tag,
-                    @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "tag", defaultValue = "") String tag,
+                    @RequestParam(value = "search", defaultValue = "") String search,
             @RequestParam(value = "pageSize", defaultValue = "10") @Positive Integer pageSize,
                     @RequestParam(value = "pageNumber", defaultValue = "1") @Positive Integer pageNumber,
             Model model) {
@@ -49,9 +49,9 @@ public class PostController {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         Page<PostDto> posts;
 
-        if (search != null && !search.isBlank()) {
+        if (!search.isBlank()) {
             posts = postService.find(search, pageable);
-        } else if (tag != null && !tag.isBlank()) {
+        } else if (!tag.isBlank()) {
             posts = postService.getByTagName(tag, pageable);
         } else {
             posts = postService.getAll(pageable);
@@ -72,12 +72,11 @@ public class PostController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable(name = "id") Long id, Model model) {
-        PostDto post = postService.get(id);
-
-        if (post == null) {
+        if (!postService.checkIdExist(id)) {
             return "redirect:/posts/add";
         }
 
+        PostDto post = postService.get(id);
         model.addAttribute("post", post);
         return "add-post";
     }
