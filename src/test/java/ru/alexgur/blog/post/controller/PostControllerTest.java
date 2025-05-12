@@ -9,22 +9,23 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class PostControllerTest extends TestWebConfiguration {
 
@@ -35,6 +36,12 @@ class PostControllerTest extends TestWebConfiguration {
     @Autowired
     private PostRepository postRepository;
     private MockMvc mockMvc;
+
+    @Value("${classpath:test-data/image.jpg}")
+    String imageJpg;
+
+    @Value("${classpath:test-data/image.png}")
+    String imagePng;
 
     @BeforeEach
     void setUp() {
@@ -54,6 +61,91 @@ class PostControllerTest extends TestWebConfiguration {
         mockMvc.perform(get("/posts/add"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("add-post"));
+    }
+
+    @Test
+    void addPost() throws Exception {
+        String title = "Заголовок";
+        String text = "Текст поста";
+        String tag1 = "тег1";
+        String tag2 = "тег2";
+        String tags = tag1 + ", " + tag2;
+
+        Resource resource = new ClassPathResource(imageJpg);
+        MockMultipartFile image = new MockMultipartFile(
+                "image", // имя параметра в форме
+                resource.getFilename(),
+                MediaType.IMAGE_JPEG_VALUE,
+                resource.getInputStream());
+
+        MvcResult result = mockMvc.perform(multipart("/posts")
+                .file(image)
+                .param("title", title)
+                .param("text", text)
+                .param("tags", tags)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", startsWith("/posts/")))
+                .andReturn();
+
+        String redirectUrl = result.getResponse().getHeader("Location");
+
+        mockMvc.perform(get(redirectUrl))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(title)))
+                .andExpect(content().string(containsString(text)))
+                .andExpect(content().string(containsString(tag1)))
+                .andExpect(content().string(containsString(tag2)));
+
+    }
+
+    @Test
+    void editPost() throws Exception {
+        String title = "Заголовок";
+        String text = "Текст поста";
+        String tag1 = "тег1";
+        String tag2 = "тег2";
+        String tags = tag1 + ", " + tag2;
+
+        Resource resource = new ClassPathResource(imageJpg);
+        MockMultipartFile image = new MockMultipartFile(
+                "image", // имя параметра в форме
+                resource.getFilename(),
+                MediaType.IMAGE_JPEG_VALUE,
+                resource.getInputStream());
+
+        mockMvc.perform(multipart("/posts")
+                .file(image)
+                .param("title", title)
+                .param("text", text)
+                .param("tags", tags)
+                .contentType(MediaType.MULTIPART_FORM_DATA));
+
+        Long postId = 1L;
+        title = "Заголовок";
+        text = "Текст поста";
+        tag1 = "java";
+        tag2 = "spring";
+        tags = tag1 + ", " + tag2;
+
+        MvcResult result = mockMvc.perform(multipart("/posts/{id}", postId)
+                .file(image)
+                .param("title", title)
+                .param("text", text)
+                .param("tags", tags)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts/" + postId))
+                .andReturn();
+
+        String redirectUrl = result.getResponse().getHeader("Location");
+
+        mockMvc.perform(get(redirectUrl))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(title)))
+                .andExpect(content().string(containsString(text)))
+                .andExpect(content().string(containsString(tag1)))
+                .andExpect(content().string(containsString(tag2)));
     }
 
     @Test
