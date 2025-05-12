@@ -29,7 +29,7 @@ public class CommentController {
     public String edit(
             @PathVariable(name = "postId") Long postId,
             @PathVariable(name = "commentId") Long commentId,
-            @RequestParam(value = "text") String text) {
+            @RequestParam(value = "text", defaultValue = "") String text) {
         CommentDto savedComment = commentService.patch(commentId, text);
         return "redirect:/posts/" + savedComment.getPostId().toString();
     }

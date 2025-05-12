@@ -19,6 +19,4 @@ public interface CommentRepository {
     void delete(Long id);
 
     boolean checkIdExist(Long id);
-
-    boolean checkPostExist(Long id);
 }

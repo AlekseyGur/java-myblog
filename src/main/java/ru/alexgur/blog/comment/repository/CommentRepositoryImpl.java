@@ -18,7 +18,6 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
 
     private static final String COMMENT_ADD = "INSERT INTO comments(text, post_id) VALUES (?, ?);";
     private static final String COMMENT_CHECK_ID_EXIST = "SELECT id FROM comments WHERE id = ?;";
-    private static final String COMMENT_CHECK_POST_EXIST = "SELECT id FROM posts WHERE id = ?;";
     private static final String COMMENT_GET_BY_ID = "SELECT * FROM comments WHERE id = ?;";
     private static final String COMMENT_GET_BY_POST_ID = "SELECT * FROM comments WHERE post_id = ?;";
     private static final String COMMENT_GET_BY_POST_IDS = "SELECT * FROM comments WHERE post_id IN (:postIds);";
@@ -71,11 +70,6 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     @Override
     public boolean checkIdExist(Long id) {
         return checkIdExist(COMMENT_CHECK_ID_EXIST, id);
-    }
-
-    @Override
-    public boolean checkPostExist(Long id) {
-        return checkIdExist(COMMENT_CHECK_POST_EXIST, id);
     }
 
     private Optional<Comment> getCommentImpl(Long id) {
