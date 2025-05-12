@@ -114,7 +114,5 @@ class CommentControllerTest extends TestWebConfiguration {
             throw new RuntimeException("Пост не добавлен");
         }
         return key.longValue();
-
     }
-
 }

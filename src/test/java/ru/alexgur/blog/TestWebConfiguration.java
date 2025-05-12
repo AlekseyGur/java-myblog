@@ -20,8 +20,6 @@ public abstract class TestWebConfiguration {
                 .setType(EmbeddedDatabaseType.H2)
                 .setName("myblogTestDB")
                 .addScript("test-schema.sql")
-                // .addScript("test-data/add-post.sql")
-                // .addScript("test-data/add-three-posts.sql")
                 .build();
     }
 }
