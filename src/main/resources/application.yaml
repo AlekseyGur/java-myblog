@@ -24,6 +24,14 @@ spring:
     username: admin
     password: 
   
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
   
@@ -37,6 +45,9 @@ upload:
     dir: /tmp/upload/blog/images
     base-url: /images
     format: jpg
+
+
+
 
 ---
 # Профиль prod
