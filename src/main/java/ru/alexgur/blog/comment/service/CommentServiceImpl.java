@@ -42,14 +42,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto get(Long postId) {
-        return commentRepository.get(postId)
-                .map(CommentMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Не удалось получить комментарий"));
-    }
-
-    @Override
     public List<CommentDto> getByPostId(Long postId) {
+        if (!postService.checkIdExist(postId)) {
+            throw new NotFoundException("Публикация с таким id не найдена");
+        }
+
         return CommentMapper.toDto(commentRepository.getByPostId(postId));
     }
 

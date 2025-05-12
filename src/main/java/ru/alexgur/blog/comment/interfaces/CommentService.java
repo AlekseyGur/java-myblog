@@ -8,8 +8,6 @@ import ru.alexgur.blog.comment.dto.CommentDto;
 public interface CommentService {
     CommentDto add(Long postId, String text);
 
-    CommentDto get(Long id);
-
     List<CommentDto> getByPostId(Long postId);
 
     Map<Long, List<CommentDto>> getByPostId(List<Long> postIds);
