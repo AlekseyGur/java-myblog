@@ -32,6 +32,10 @@ public class BaseRepository<T> {
         return getNumberOrZeroImpl(query, id) != 0;
     }
 
+    public long getNumberOrZero(String query, SqlParameterSource params) {
+        return getNumberOrZeroImpl(query, params);
+    }
+
     public long getNumberOrZero(String query, Object... params) {
         return getNumberOrZeroImpl(query, params);
     }
@@ -59,7 +63,9 @@ public class BaseRepository<T> {
         try {
             return njdbc.query(query, params, mapper);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Ошибка при получении списка записей из базы данных");
+            // throw new InternalServerException("Ошибка при получении списка записей из
+            // базы данных");
+            throw new RuntimeException("Ошибка при получении списка записей" + e.getMessage(), e);
         }
     }
 
@@ -68,6 +74,14 @@ public class BaseRepository<T> {
             return jdbc.query(query, (rs, rowNum) -> rs.getLong(1), params);
         } catch (DataAccessException e) {
             throw new InternalServerException("Ошибка при получении id записи в базе данных");
+        }
+    }
+
+    public <V> List<V> findManyIdToId(String query, RowMapper<V> pairMapper, SqlParameterSource params) {
+        try {
+            return njdbc.query(query, params, pairMapper);
+        } catch (DataAccessException e) {
+            throw new InternalServerException("Ошибка при получении IdToId");
         }
     }
 
@@ -120,6 +134,17 @@ public class BaseRepository<T> {
                 count = jdbc.queryForObject(query, Long.class, params);
             }
             return count != null ? count : 0L;
+        } catch (EmptyResultDataAccessException e) {
+            return 0L;
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    private Long getNumberOrZeroImpl(String query, SqlParameterSource params) {
+        try {
+            return Optional.ofNullable(njdbc.queryForObject(query, params, Long.class))
+                    .orElse(0L);
         } catch (EmptyResultDataAccessException e) {
             return 0L;
         } catch (Exception e) {

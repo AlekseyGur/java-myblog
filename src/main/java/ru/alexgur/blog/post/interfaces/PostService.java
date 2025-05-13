@@ -13,6 +13,8 @@ public interface PostService {
 
     Page<PostDto> find(String search, Pageable pageable);
 
+    Page<PostDto> getByTagName(String search, Pageable pageable);
+
     Page<PostDto> getAll(Pageable pageable);
 
     void delete(Long id);

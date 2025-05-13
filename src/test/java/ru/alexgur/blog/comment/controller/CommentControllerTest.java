@@ -1,10 +1,9 @@
 package ru.alexgur.blog.comment.controller;
 
-import ru.alexgur.blog.configuration.TestDataSourceConfiguration;
-import ru.alexgur.blog.configuration.TestWebConfiguration;
+import ru.alexgur.blog.TestWebConfiguration;
 import ru.alexgur.blog.post.interfaces.PostRepository;
-import com.sun.jdi.InternalException;
-import javassist.NotFoundException;
+import ru.alexgur.blog.system.exception.NotFoundException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -33,11 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.hamcrest.Matchers.*;
 
-@SpringJUnitConfig(classes = { TestDataSourceConfiguration.class, TestWebConfiguration.class })
-@ActiveProfiles("test")
-@WebAppConfiguration
-@TestPropertySource(locations = "classpath:test-application.properties")
-class CommentControllerTest {
+class CommentControllerTest extends TestWebConfiguration {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -62,7 +54,7 @@ class CommentControllerTest {
 
     @Test
     @Sql(scripts = "classpath:test-data/add-post.sql")
-    void addNewComment() throws Exception {
+    void add() throws Exception {
         long postId = getFirstPostId();
         String newComment = "new test comment";
         mockMvc.perform(post("/posts/" + postId + "/comments")
@@ -79,10 +71,36 @@ class CommentControllerTest {
 
     @Test
     @Sql(scripts = "classpath:test-data/add-post.sql")
-    void deleteComment() throws Exception {
+    void edit() throws Exception {
+        long postId = getFirstPostId();
+        String commentText = "New comment " + (int) (Math.random() * 1000);
+        long commentId = addAndGetId(commentText, postId);
+
+        mockMvc.perform(get("/posts/" + postId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(commentText)));
+
+        commentText = "Changed text " + (int) (Math.random() * 1000);
+
+        MvcResult result = mockMvc.perform(post("/posts/" + postId + "/comments/" + commentId)
+                .param("text", commentText))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts/" + postId))
+                .andReturn();
+
+        String redirectUrl = result.getResponse().getHeader("Location");
+
+        mockMvc.perform(get(redirectUrl))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(commentText)));
+    }
+
+    @Test
+    @Sql(scripts = "classpath:test-data/add-post.sql")
+    void delete() throws Exception {
         long postId = getFirstPostId();
         String commentText = "comment to delete " + (int) (Math.random() * 1000);
-        long commentId = addCommentAndGetId(commentText, postId);
+        long commentId = addAndGetId(commentText, postId);
 
         mockMvc.perform(get("/posts/" + postId))
                 .andExpect(status().isOk())
@@ -105,7 +123,7 @@ class CommentControllerTest {
                 .orElseThrow(() -> new NotFoundException("пост не найден")).getId();
     }
 
-    private long addCommentAndGetId(String commentText, long postId) {
+    private long addAndGetId(String commentText, long postId) {
         String query = """
                 INSERT INTO comments(text,post_id)
                 VALUES (?,?)
@@ -120,10 +138,8 @@ class CommentControllerTest {
         }, keyHolder);
         Number key = keyHolder.getKey();
         if (key == null) {
-            throw new InternalException("Пост не добавлен");
+            throw new RuntimeException("Пост не добавлен");
         }
         return key.longValue();
-
     }
-
 }

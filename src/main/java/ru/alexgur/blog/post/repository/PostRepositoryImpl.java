@@ -3,11 +3,12 @@ package ru.alexgur.blog.post.repository;
 import java.util.Optional;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import ru.alexgur.blog.post.interfaces.PostRepository;
@@ -42,7 +43,16 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
             WHERE title LIKE ?
             OR text LIKE ?;""";
 
-    @Autowired
+    private static final String POSTS_GET_BY_IDS = """
+            SELECT *
+            FROM posts
+            WHERE id IN (:postIds)
+            LIMIT (:limit) OFFSET (:offset);""";
+    private static final String POSTS_GET_BY_IDS_TOTAL = """
+            SELECT COUNT(*)
+            FROM posts
+            WHERE id IN (:postIds);""";
+
     public PostRepositoryImpl(NamedParameterJdbcTemplate njdbc, PostRowMapper mapper) {
         super(njdbc, mapper);
     }
@@ -78,21 +88,37 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
 
     @Override
     public Page<Post> find(String search, Pageable pageable) {
-        if (search == null) {
-            search = "";
-        }
-
-        long totalRows = getNumberOrZero(POST_FIND_TOTAL);
+        String q = "%" + search + "%";
+        long totalRows = getNumberOrZero(POST_FIND_TOTAL, q, q);
 
         if (totalRows == 0) {
             return new PageImpl<>(List.of(), pageable, 0);
         }
 
-        String q = "%" + search + "%";
         List<Post> posts = findMany(POST_FIND,
                 q, q,
                 pageable.getPageSize(),
                 pageable.getOffset());
+
+        return new PageImpl<>(posts, pageable, totalRows);
+    }
+
+    @Override
+    public Page<Post> getByIds(List<Long> postIds, Pageable pageable) {
+        SqlParameterSource parameters = new MapSqlParameterSource("postIds", postIds);
+
+        long totalRows = getNumberOrZero(POSTS_GET_BY_IDS_TOTAL, parameters);
+
+        if (totalRows == 0) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
+        parameters = new MapSqlParameterSource()
+                .addValue("postIds", postIds)
+                .addValue("limit", pageable.getPageSize())
+                .addValue("offset", pageable.getOffset());
+
+        List<Post> posts = findMany(POSTS_GET_BY_IDS, parameters);
 
         return new PageImpl<>(posts, pageable, totalRows);
     }
@@ -129,12 +155,12 @@ public class PostRepositoryImpl extends BaseRepository<Post> implements PostRepo
         return checkIdExist(POST_CHECK_ID_EXIST, id);
     }
 
-    private Optional<Post> getPostImpl(Long id) {
-        return findOne(POST_GET_BY_ID, id);
-    }
-
     @Override
     public Long getTotal() {
         return getNumberOrZero(POST_GET_TOTAL);
+    }
+
+    private Optional<Post> getPostImpl(Long id) {
+        return findOne(POST_GET_BY_ID, id);
     }
 }

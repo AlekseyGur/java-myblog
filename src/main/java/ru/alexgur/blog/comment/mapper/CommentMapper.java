@@ -8,25 +8,27 @@ import ru.alexgur.blog.comment.model.Comment;
 
 @UtilityClass
 public class CommentMapper {
-    public static CommentDto commentToDto(Comment comment) {
+    public static CommentDto toDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
         commentDto.setText(comment.getText());
+        commentDto.setPostId(comment.getPostId());
         return commentDto;
     }
 
-    public static Comment dtoToComment(CommentDto commentDto) {
+    public static Comment toComment(CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setId(commentDto.getId());
         comment.setText(commentDto.getText());
+        comment.setPostId(commentDto.getPostId());
         return comment;
     }
 
-    public static List<Comment> dtoToComment(List<CommentDto> commentsDto) {
-        return commentsDto.stream().map(CommentMapper::dtoToComment).toList();
+    public static List<Comment> toComment(List<CommentDto> commentsDto) {
+        return commentsDto.stream().map(CommentMapper::toComment).toList();
     }
 
-    public static List<CommentDto> commentToDto(List<Comment> comments) {
-        return comments.stream().map(CommentMapper::commentToDto).toList();
+    public static List<CommentDto> toDto(List<Comment> comments) {
+        return comments.stream().map(CommentMapper::toDto).toList();
     }
 }

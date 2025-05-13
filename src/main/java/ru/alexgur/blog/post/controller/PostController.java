@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.post.dto.Paging;
 import ru.alexgur.blog.post.dto.PostDto;
@@ -23,12 +25,13 @@ import ru.alexgur.blog.post.interfaces.PostService;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/posts")
+@Validated
 public class PostController {
     private final PostService postService;
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public String get(@PathVariable(name = "id") Long id, Model model) {
+    public String get(@PathVariable @Positive Long id, Model model) {
         PostDto post = postService.get(id);
         model.addAttribute("post", post);
         return "post";
@@ -37,16 +40,19 @@ public class PostController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public String getAll(
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(value = "tag", defaultValue = "") String tag,
+                    @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "pageSize", defaultValue = "10") @Positive Integer pageSize,
+                    @RequestParam(value = "pageNumber", defaultValue = "1") @Positive Integer pageNumber,
             Model model) {
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         Page<PostDto> posts;
 
-        if (search != null) {
+        if (!search.isBlank()) {
             posts = postService.find(search, pageable);
+        } else if (!tag.isBlank()) {
+            posts = postService.getByTagName(tag, pageable);
         } else {
             posts = postService.getAll(pageable);
         }
@@ -66,12 +72,11 @@ public class PostController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable(name = "id") Long id, Model model) {
-        PostDto post = postService.get(id);
-
-        if (post == null) {
+        if (!postService.checkIdExist(id)) {
             return "redirect:/posts/add";
         }
 
+        PostDto post = postService.get(id);
         model.addAttribute("post", post);
         return "add-post";
     }
@@ -88,7 +93,6 @@ public class PostController {
     }
 
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public String editPost(@PathVariable(name = "id") Long id,
             @RequestParam(value = "title") String title,
                     @RequestParam(value = "text") String text,
@@ -96,18 +100,18 @@ public class PostController {
             @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {
         PostDto savedPost = postService.patch(id, title, text, tags, image);
 
-        return "redirect:" + savedPost.getUrl();
+        return "redirect:/posts/" + savedPost.getId();
     }
 
-    @PostMapping("/{id}/like")
-    public String addLike(@PathVariable(name = "id") Long id,
+    @PostMapping("/{postId}/like")
+    public String addLike(@PathVariable(name = "postId") Long postId,
             @RequestParam(name = "like") boolean isLike) {
-        postService.like(id, isLike);
-        return "redirect:/posts/" + id.toString();
+        postService.like(postId, isLike);
+        return "redirect:/posts/" + postId.toString();
     }
 
-    @PostMapping(value = "/{postId}/delete", params = "_method=delete")
-    public String delete(@PathVariable(name = "postId") Long postId) {
+    @PostMapping(value = "/{postId}/delete")
+    public String deletePost(@PathVariable(name = "postId") Long postId) {
         postService.delete(postId);
         return "redirect:/posts";
     }

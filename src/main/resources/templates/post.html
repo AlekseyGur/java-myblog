@@ -63,7 +63,7 @@
             <td>
                 <h2 th:text="${post.getTitle()}"></h2>
                 <p>
-                    <img height="300" th:src="${'http://localhost:8080/images/'+post.getId()}">
+                    <img height="300" th:src="${'/images/'+post.getId()}">
                 </p>
                 <p>
                     <form th:action="${'/posts/'+post.getId()+'/like'}" method="post">
@@ -73,13 +73,13 @@
                         <span th:text="${'комментарии '+post.getComments().size()}" style="float:right;"></span>
                     </form>
                 </p>
+                <p th:text="${post.getText()}"></p>
                 <p>
-                    <span th:each="tag : ${post.getTags()}" th:text="${'#'+tag+' '}"></span>
+                    <span th:each="tag : ${post.getTags()}">
+                        <a th:href="${'/posts?tag=#'+tag}" th:text="${'#'+tag}"></a>
+                    </span>
                 </p>
             </td>
-        </tr>
-        <tr th:each="textPart : ${post.getTextParts()}">
-            <td th:text="${textPart}"></td>
         </tr>
         <tr>
             <td>

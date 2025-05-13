@@ -3,8 +3,9 @@ package ru.alexgur.blog.comment.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import ru.alexgur.blog.comment.interfaces.CommentRepository;
@@ -17,13 +18,12 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
 
     private static final String COMMENT_ADD = "INSERT INTO comments(text, post_id) VALUES (?, ?);";
     private static final String COMMENT_CHECK_ID_EXIST = "SELECT id FROM comments WHERE id = ?;";
-    private static final String COMMENT_CHECK_POST_EXIST = "SELECT id FROM posts WHERE id = ?;";
     private static final String COMMENT_GET_BY_ID = "SELECT * FROM comments WHERE id = ?;";
     private static final String COMMENT_GET_BY_POST_ID = "SELECT * FROM comments WHERE post_id = ?;";
-    private static final String COMMENT_UPDATE = "UPDATE comments SET text = ?, text = ? WHERE id = ? LIMIT 1;";
+    private static final String COMMENT_GET_BY_POST_IDS = "SELECT * FROM comments WHERE post_id IN (:postIds);";
+    private static final String COMMENT_UPDATE = "UPDATE comments SET text = ? WHERE id = ? LIMIT 1;";
     private static final String COMMENT_DELETE = "DELETE FROM comments WHERE id = ? LIMIT 1;";
 
-    @Autowired
     public CommentRepositoryImpl(NamedParameterJdbcTemplate njdbc, CommentRowMapper mapper) {
         super(njdbc, mapper);
     }
@@ -48,11 +48,16 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     }
 
     @Override
+    public List<Comment> getByPostId(List<Long> postIds) {
+        SqlParameterSource parameters = new MapSqlParameterSource("postIds", postIds);
+        return findMany(COMMENT_GET_BY_POST_IDS, parameters);
+    }
+
+    @Override
     public Optional<Comment> update(Comment comment) {
         update(COMMENT_UPDATE,
                 comment.getText(),
-                comment.getPostId(),
-                comment.getId());
+                        comment.getId());
 
         return getCommentImpl(comment.getId());
     }
@@ -65,11 +70,6 @@ public class CommentRepositoryImpl extends BaseRepository<Comment> implements Co
     @Override
     public boolean checkIdExist(Long id) {
         return checkIdExist(COMMENT_CHECK_ID_EXIST, id);
-    }
-
-    @Override
-    public boolean checkPostExist(Long id) {
-        return checkIdExist(COMMENT_CHECK_POST_EXIST, id);
     }
 
     private Optional<Comment> getCommentImpl(Long id) {
