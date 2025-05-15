@@ -10,9 +10,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ru.alexgur.blog.tag.dto.PairIdsDto;
 import ru.alexgur.blog.tag.dto.TagDto;
 import ru.alexgur.blog.tag.interfaces.TagService;
@@ -22,11 +22,12 @@ import ru.alexgur.blog.tag.model.Tag;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Transactional(readOnly = true)
 public class TagServiceImpl implements TagService {
     private final TagRepository tagRepository;
 
     @Override
+    @Transactional
     public List<TagDto> add(Long postId, List<String> tags) {
         Set<String> uniqueNames = new HashSet<>(tags);
 
@@ -66,6 +67,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public void deleteByPostId(Long postId) {
         tagRepository.deleteByPostId(postId);
     }

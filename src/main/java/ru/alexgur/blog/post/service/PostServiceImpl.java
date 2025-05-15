@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import ru.alexgur.blog.post.model.Post;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final TagService tagsService;
@@ -33,6 +35,7 @@ public class PostServiceImpl implements PostService {
     private final PostImageService postImageService;
 
     @Override
+    @Transactional
     public PostDto add(String title, String text, String tags, MultipartFile image) {
         Post post = new Post();
         post.setTitle(title);
@@ -84,6 +87,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void like(Long id, boolean isLike) {
         if (isLike) {
             postRepository.like(id);
@@ -93,6 +97,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         postRepository.delete(id);
     }
@@ -103,6 +108,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto patch(Long id, String title, String text, String tags, MultipartFile image) {
         Post postSaved = postRepository.get(id).orElse(null);
 
@@ -134,10 +140,12 @@ public class PostServiceImpl implements PostService {
         postImageService.save(postId, image);
     }
 
+    @Transactional
     private void removeTags(Long postId) {
         tagsService.deleteByPostId(postId);
     }
 
+    @Transactional
     private void saveTags(Long id, String tags) {
         List<String> tagsList = Arrays.asList(tags.split(",")).stream()
                 .map(String::strip)

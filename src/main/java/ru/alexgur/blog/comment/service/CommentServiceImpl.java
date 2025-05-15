@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import ru.alexgur.blog.system.exception.NotFoundException;
@@ -18,11 +19,13 @@ import ru.alexgur.blog.post.interfaces.PostRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
     @Override
+    @Transactional
     public CommentDto add(Long postId, String text) {
         checkPostIdThrowErrorIfNotExist(postId);
 
@@ -53,11 +56,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         commentRepository.delete(id);
     }
 
     @Override
+    @Transactional
     public CommentDto patch(Long commentId, String text) {
         Comment commentSaved = checkAccess(commentId);
 
