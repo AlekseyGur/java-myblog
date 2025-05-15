@@ -31,7 +31,8 @@ public class PostController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public String get(@PathVariable @Positive Long id, Model model) {
+    public String get(@PathVariable @Positive Long id,
+            Model model) {
         PostDto post = postService.get(id);
         model.addAttribute("post", post);
         return "post";
@@ -71,7 +72,8 @@ public class PostController {
     }
 
     @GetMapping("/{id}/edit")
-    public String editForm(@PathVariable(name = "id") Long id, Model model) {
+    public String editForm(@PathVariable(name = "id") @Positive Long id, 
+    Model model) {
         if (!postService.checkIdExist(id)) {
             return "redirect:/posts/add";
         }
@@ -93,8 +95,8 @@ public class PostController {
     }
 
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String editPost(@PathVariable(name = "id") Long id,
-            @RequestParam(value = "title") String title,
+    public String editPost(@PathVariable(name = "id") @Positive Long id,
+                    @RequestParam(value = "title") String title,
                     @RequestParam(value = "text") String text,
             @RequestParam(value = "image") MultipartFile image,
             @RequestParam(value = "tags", required = false, defaultValue = "") String tags) {

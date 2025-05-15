@@ -97,6 +97,44 @@ class CommentControllerTest extends TestWebConfiguration {
 
     @Test
     @Sql(scripts = "classpath:test-data/add-post.sql")
+    void editEmptyTextShouldNotChangeComment() throws Exception {
+            long postId = getFirstPostId();
+
+            String commentText = "New comment " + (int) (Math.random() * 1000);
+            String emptyCommentText = "";
+
+            long commentId = addAndGetId(commentText, postId);
+
+            mockMvc.perform(get("/posts/" + postId))
+                            .andExpect(status().isOk())
+                            .andExpect(content().string(containsString(commentText)));
+
+            MvcResult result = mockMvc.perform(post("/posts/" + postId + "/comments/" + commentId)
+                            .param("text", emptyCommentText))
+                            .andExpect(status().is3xxRedirection())
+                            .andExpect(redirectedUrl("/posts/" + postId))
+                            .andReturn();
+
+            String redirectUrl = result.getResponse().getHeader("Location");
+
+            mockMvc.perform(get(redirectUrl))
+                            .andExpect(status().isOk())
+                            .andExpect(content().string(containsString(commentText)));
+    }
+
+    @Test
+    @Sql(scripts = "classpath:test-data/add-post.sql")
+    void editWrongCommentShouldThrowError() throws Exception {
+            long postId = 999997L;
+            long commentId = 999997L;
+
+            mockMvc.perform(post("/posts/" + postId + "/comments/" + commentId)
+                            .param("text", "New Text Comment"))
+                            .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @Sql(scripts = "classpath:test-data/add-post.sql")
     void delete() throws Exception {
         long postId = getFirstPostId();
         String commentText = "comment to delete " + (int) (Math.random() * 1000);

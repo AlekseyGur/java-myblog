@@ -88,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
 
     private Comment checkAccess(Long commentId) {
 
-        if (commentId == null || !checkIdExist(commentId)) {
+        if (!checkIdExist(commentId)) {
             throw new NotFoundException("Комментарий с таким id не найден");
         }
 
