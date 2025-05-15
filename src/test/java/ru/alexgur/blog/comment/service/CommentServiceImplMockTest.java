@@ -11,26 +11,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import ru.alexgur.blog.TestWebConfiguration;
 import ru.alexgur.blog.comment.dto.CommentDto;
 import ru.alexgur.blog.comment.interfaces.CommentRepository;
 import ru.alexgur.blog.comment.model.Comment;
-import ru.alexgur.blog.post.interfaces.PostService;
+import ru.alexgur.blog.post.interfaces.PostRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceImplMockTest extends TestWebConfiguration {
 
-    @InjectMocks
-    private CommentServiceImpl commentServiceImpl;
-
-    @Mock
+    @Spy
     private CommentRepository commentRepository;
 
-    @Mock
-    private PostService postService;
+    @Spy
+    private PostRepository postRepository;
+
+    @InjectMocks
+    private CommentServiceImpl commentServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -42,12 +43,13 @@ public class CommentServiceImplMockTest extends TestWebConfiguration {
         Long postId = 1L;
         String text = "Текст комментария";
 
+        when(postRepository.checkIdExist(postId)).thenReturn(true);
+
         Comment savedComment = new Comment();
         savedComment.setId(1L);
         savedComment.setPostId(postId);
         savedComment.setText(text);
 
-        when(postService.checkIdExist(postId)).thenReturn(true);
         when(commentRepository.add(any(Comment.class))).thenReturn(Optional.of(savedComment));
 
         CommentDto result = commentServiceImpl.add(postId, text);
@@ -57,7 +59,7 @@ public class CommentServiceImplMockTest extends TestWebConfiguration {
         assertEquals(savedComment.getPostId(), result.getPostId());
         assertEquals(savedComment.getText(), result.getText());
 
-        verify(postService, times(1)).checkIdExist(postId);
+        verify(postRepository, times(1)).checkIdExist(postId);
         verify(commentRepository, times(1)).add(any(Comment.class));
     }
 
@@ -76,13 +78,13 @@ public class CommentServiceImplMockTest extends TestWebConfiguration {
         comment2.setPostId(postId);
         comment2.setText(text);
 
-        when(postService.checkIdExist(postId)).thenReturn(true);
+        when(postRepository.checkIdExist(postId)).thenReturn(true);
         when(commentRepository.getByPostId(any(Long.class))).thenReturn(List.of(comment1, comment2));
 
         List<CommentDto> res = commentServiceImpl.getByPostId(postId);
         assertEquals(res.size(), 2);
 
-        verify(postService, times(1)).checkIdExist(postId);
+        verify(postRepository, times(1)).checkIdExist(postId);
         verify(commentRepository, times(1)).getByPostId(postId);
     }
 
@@ -90,13 +92,13 @@ public class CommentServiceImplMockTest extends TestWebConfiguration {
     void getByWrotngPostId() {
         Long postId = 1L;
 
-        when(postService.checkIdExist(postId)).thenReturn(false);
+        when(postRepository.checkIdExist(postId)).thenReturn(false);
 
         assertThrows(Exception.class, () -> {
             commentServiceImpl.getByPostId(postId);
         });
 
-        verify(postService, times(1)).checkIdExist(postId);
+        verify(postRepository, times(1)).checkIdExist(postId);
     }
 
     @Test
@@ -104,13 +106,13 @@ public class CommentServiceImplMockTest extends TestWebConfiguration {
         Long postId = 1L;
         String text = "Текст комментария";
 
-        when(postService.checkIdExist(postId)).thenReturn(false);
+        when(postRepository.checkIdExist(postId)).thenReturn(false);
 
         assertThrows(Exception.class, () -> {
             commentServiceImpl.add(postId, text);
         });
 
-        verify(postService, times(1)).checkIdExist(postId);
+        verify(postRepository, times(1)).checkIdExist(postId);
     }
 
     @Test
